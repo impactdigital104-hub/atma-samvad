@@ -1,0 +1,7 @@
+<!-- FILE: vercel.json (optional; paste in project root if you need headers later) -->
+{
+"version": 2,
+"routes": [
+{ "src": "/", "dest": "/index.html" }
+]
+}
