@@ -12,9 +12,11 @@
 <div class="wrap">
 <h1>Atma Samvad</h1>
 <nav>
-<a href="#hub" class="nav">Hub</a>
-<a href="#aurobindo" class="nav">Sri Aurobindo</a>
-<a href="#qa" class="nav">Samvad Q&A</a>
+  <a href="#hub" class="nav">Hub</a>
+  <a href="#aurobindo" class="nav">Sri Aurobindo</a>
+  <a href="#qa" class="nav">Samvad Q&A</a>
+  <button id="btnAuth" class="nav" style="border:none;background:none;cursor:pointer">Sign in</button>
+  <span id="badge" class="nav" aria-live="polite"></span>
 </nav>
 </div>
 </header>
@@ -45,6 +47,30 @@
 
 
 <footer class="ftr"><div class="wrap">© Atma Vani — Samvad (MVP Shell)</div></footer>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBG9gtjR53FzUIBG7nk1nZJdHHinDLX2VY",
+    authDomain: "atma-vani-prod.firebaseapp.com",
+    projectId: "atma-vani-prod",
+    appId: "1:1043273819491:web:48ac7fac567392bb2bdf56"
+    // include these only if they exist in your config
+    storageBucket: "atma-vani-prod.firebasestorage.app",
+    measurementId: "PASTE_IF_PRESENT"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // Expose for app.js
+  window.__samvad = { auth, provider, signInWithPopup, signOut, onAuthStateChanged };
+</script>
+<!-- keep this line below -->
+<script src="/app.js" defer></script>
 <script src="/app.js" defer></script>
 </body>
 </html>
