@@ -2,105 +2,120 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Atma Samvad — Sri Aurobindo & The Mother (MVP Shell)</title>
-<link rel="stylesheet" href="/styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atma Samvad — Sri Aurobindo & The Mother (MVP)</title>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-<header class="hdr">
-<div class="wrap">
-<h1>Atma Samvad</h1>
-<nav>
-  <a href="#hub" class="nav">Hub</a>
-  <a href="#aurobindo" class="nav">Sri Aurobindo</a>
-  <a href="#qa" class="nav">Samvad Q&A</a>
-  <button id="btnAuth" class="nav" style="border:none;background:none;cursor:pointer">Sign in</button>
-  <span id="badge" class="nav" aria-live="polite"></span>
-</nav>
-</div>
-</header>
+  <header class="hdr">
+    <div class="wrap">
+      <h1>Atma Samvad</h1>
+      <nav>
+        <a href="#hub" class="nav">Hub</a>
+        <a href="#aurobindo" class="nav">Sri Aurobindo</a>
+        <a href="#qa" class="nav">Samvad Q&A</a>
+        <button id="btnAuth" class="nav" style="border:none;background:none;cursor:pointer">Sign in</button>
+        <span id="badge" class="nav" aria-live="polite"></span>
+      </nav>
+    </div>
+  </header>
 
-
-<main class="wrap" id="app">
-<section id="hub" class="card">
-<h2>Samvad Hub</h2>
-<p>Welcome. This is the isolated build for Sri Aurobindo & The Mother. Auth/quotas/paywall will be added in later phases.</p>
-</section>
-
-
-<section id="aurobindo" class="card">
-<h2>Sri Aurobindo — Start Here</h2>
-<ul>
-<li><strong>Day 1–2</strong> teaser (free)</li>
-<li>Guided Reading placeholder</li>
-<li>Depth Dial placeholder</li>
-</ul>
-</section>
-
-
-<section id="qa" class="card">
-  <h2>Scoped Samvad Q&A</h2>
-  <p>API wiring comes in Phase 5. For now this is a placeholder.</p>
-  <button id="btnAsk" style="margin-top:8px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer">
-    Try Q&A (demo)
-  </button>
-</section>
-
-</main>
-
-
-<footer class="ftr"><div class="wrap">© Atma Vani — Samvad (MVP Shell)</div></footer>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { 
-    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged 
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { 
-    getFirestore, doc, setDoc, serverTimestamp 
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  // ✅ Use your REAL config (from earlier)
-  const firebaseConfig = {
-    apiKey: "AIzaSyBG9gtjR53FzUIBG7nk1nZJdHHinDLX2VY",
-    authDomain: "atma-vani-prod.firebaseapp.com",
-    projectId: "atma-vani-prod",
-    appId: "1:1043273819491:web:48ac7fac567392bb2bdf56",
-    storageBucket: "atma-vani-prod.firebasestorage.app"
-    // measurementId is optional; add only if you have a real value
-  };
-
-  // Init
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
-
-  // Expose for app.js (so app.js can use auth + db)
-  window.__samvad = { 
-    auth, db, provider, 
-    signInWithPopup, signOut, onAuthStateChanged, 
-    doc, setDoc, serverTimestamp 
-  };
-</script>
-<!-- keep exactly one app.js include, below the module block -->
-<script src="/app.js" defer></script>
-  <!-- Paywall Modal -->
-<div id="paywall" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6);">
-  <div style="background:#1e2233; color:#e9eef7; max-width:520px; margin:10vh auto; padding:20px; border-radius:12px; border:1px solid #23273a">
-    <h3 style="margin-top:0">Trial ended — Upgrade to continue</h3>
-    <p>You’ve enjoyed full access to Atma Samvad during your 3-day trial. To continue your journey with Sri Aurobindo & The Mother, please upgrade.</p>
-    <div style="display:flex; gap:12px; margin-top:12px">
-      <button id="btnUpgrade" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#2a3250; color:#e9eef7; cursor:pointer">
-        Upgrade (placeholder)
-      </button>
-      <button id="btnClosePaywall" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#151824; color:#e9eef7; cursor:pointer">
-        Not now
+  <!-- Trial banner -->
+  <div id="trialBanner" style="display:none;background:#1b2336;color:#e9eef7;border-bottom:1px solid #23273a">
+    <div class="wrap" style="padding:8px 0;display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <span id="trialText">Full access trial — 3 days left</span>
+      <button id="trialUpgrade" style="padding:8px 12px;border-radius:10px;border:1px solid #23273a;background:#2a3250;color:#e9eef7;cursor:pointer">
+        Upgrade
       </button>
     </div>
   </div>
-</div>
+
+  <main class="wrap" id="app">
+    <section id="hub" class="card">
+      <h2>Samvad Hub</h2>
+      <p>Welcome. This is the isolated build for Sri Aurobindo & The Mother. Trial gating and Q&A are active on this page.</p>
+    </section>
+
+    <section id="aurobindo" class="card">
+      <h2>Sri Aurobindo — Start Here</h2>
+      <ul>
+        <li><strong>Day 1–2</strong> teaser (free during trial)</li>
+        <li>Guided Reading placeholder</li>
+        <li>Depth Dial placeholder</li>
+      </ul>
+    </section>
+
+    <section id="qa" class="card">
+      <h2>Scoped Samvad Q&A</h2>
+
+      <div class="card" style="margin-top:12px">
+        <label for="qaInput" style="display:block;margin-bottom:8px">Ask a question about Sri Aurobindo & The Mother</label>
+        <textarea id="qaInput" rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text)"></textarea>
+
+        <div style="margin-top:8px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <div>
+            <label><input type="radio" name="depth" value="plain" checked/> Plain</label>
+            <label style="margin-left:8px"><input type="radio" name="depth" value="scholar" /> Scholar</label>
+          </div>
+          <button id="btnAsk" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer">
+            Ask
+          </button>
+          <span id="qaStatus" style="color:var(--muted)"></span>
+        </div>
+
+        <div id="qaOutput" style="margin-top:12px;white-space:pre-wrap;line-height:1.55"></div>
+        <div id="qaSources" style="margin-top:8px;color:var(--muted);font-size:0.95em"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ftr"><div class="wrap">© Atma Vani — Samvad (MVP)</div></footer>
+
+  <!-- Paywall Modal -->
+  <div id="paywall" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6);">
+    <div style="background:#1e2233; color:#e9eef7; max-width:520px; margin:10vh auto; padding:20px; border-radius:12px; border:1px solid #23273a">
+      <h3 style="margin-top:0">Trial ended — Upgrade to continue</h3>
+      <p>You’ve enjoyed full access to Atma Samvad during your 3-day trial. To continue your journey with Sri Aurobindo & The Mother, please upgrade.</p>
+      <div style="display:flex; gap:12px; margin-top:12px">
+        <button id="btnUpgrade" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#2a3250; color:#e9eef7; cursor:pointer">
+          Upgrade (placeholder)
+        </button>
+        <button id="btnClosePaywall" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#151824; color:#e9eef7; cursor:pointer">
+          Not now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs + expose -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBG9gtjR53FzUIBG7nk1nZJdHHinDLX2VY",
+      authDomain: "atma-vani-prod.firebaseapp.com",
+      projectId: "atma-vani-prod",
+      appId: "1:1043273819491:web:48ac7fac567392bb2bdf56",
+      storageBucket: "atma-vani-prod.firebasestorage.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    window.__samvad = {
+      auth, db, provider, signInWithPopup, signOut, onAuthStateChanged,
+      doc, setDoc, serverTimestamp
+    };
+  </script>
+
+  <!-- App JS -->
+  <script src="/app.js" defer></script>
 </body>
 </html>
-
