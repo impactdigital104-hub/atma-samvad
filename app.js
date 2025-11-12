@@ -41,25 +41,86 @@ route();
     }
   });
 })();
-// --- Firestore: create/patch samvad_users doc on sign-in ---
-(function fsUserDoc() {
+// --- Firestore: Samvad 3-day trial handler + badge ---
+(function samvadTrial3Day() {
+  function daysLeftUTC(startDate, durationDays = 3) {
+    // normalize start to 00:00 UTC for day math
+    const startUTC = new Date(Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate()
+    ));
+    const endUTC = new Date(startUTC.getTime() + durationDays * 86400000);
+    const now = new Date();
+    const diffDays = Math.ceil((endUTC - now) / 86400000);
+    return Math.max(0, diffDays);
+  }
+
+  function setBadge(text) {
+    const badge = document.getElementById('badge');
+    if (badge) badge.textContent = text || '';
+  }
+
+  async function upsertUserIfNeeded(api, user) {
+    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const ref = api.doc(api.db, "samvad_users", user.uid);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      // first time on Samvad → start trial
+      await api.setDoc(ref, {
+        uid: user.uid,
+        name: user.displayName || null,
+        email: user.email || null,
+        photoURL: user.photoURL || null,
+        tier: "trial",
+        trialStartedAt: api.serverTimestamp(),
+        createdAt: api.serverTimestamp(),
+        lastSeen: api.serverTimestamp()
+      }, { merge: true });
+      return { tier: "trial", trialStartedAt: new Date() }; // temp value; next reload will have server ts
+    }
+
+    const data = snap.data() || {};
+    // backfill if older doc had no trial field
+    let changed = false;
+    const update = { lastSeen: api.serverTimestamp() };
+    if (!data.tier) { update.tier = "trial"; changed = true; }
+    if (!data.trialStartedAt) { update.trialStartedAt = api.serverTimestamp(); changed = true; }
+    if (changed) await api.setDoc(ref, update, { merge: true });
+
+    return {
+      tier: data.tier || "trial",
+      trialStartedAt: data.trialStartedAt
+        ? (data.trialStartedAt.toDate ? data.trialStartedAt.toDate() : new Date(data.trialStartedAt.seconds * 1000))
+        : new Date()
+    };
+  }
+
   function wire(api) {
     api.onAuthStateChanged(api.auth, async (user) => {
-      if (!user) return;
+      if (!user) { setBadge(''); return; }
+
       try {
-        const ref = api.doc(api.db, "samvad_users", user.uid);
-        await api.setDoc(ref, {
-          uid: user.uid,
-          name: user.displayName || null,
-          email: user.email || null,
-          photoURL: user.photoURL || null,
-          tier: "free",                 // default; will flip to 'premium' after payment
-          lastSeen: api.serverTimestamp(),
-          createdAt: api.serverTimestamp()
-        }, { merge: true });
+        const info = await upsertUserIfNeeded(api, user);
+
+        if (info.tier === "premium") {
+          setBadge("Premium");
+          return;
+        }
+
+        // trial
+        const left = daysLeftUTC(info.trialStartedAt);
+        if (left > 0) {
+          setBadge(`Trial · ${left}d left`);
+        } else {
+          // trial ended but still not premium → show paywall indicator
+          setBadge("Trial ended · Upgrade to continue");
+          // (UI gates will read this state; we’ll wire paywall in a later baby step)
+        }
       } catch (e) {
-        console.error("samvad_users write failed:", e);
-        alert("Could not save profile (samvad). Please check Firestore rules/console.");
+        console.error("samvad trial init failed:", e);
+        setBadge(""); // fail silently in UI
       }
     });
   }
@@ -68,8 +129,7 @@ route();
   (function wait(tries = 0) {
     const api = window.__samvad;
     if (api && api.db && api.auth) return wire(api);
-    if (tries > 20) return; // stop after ~6s
+    if (tries > 20) return;
     setTimeout(() => wait(tries + 1), 300);
   })();
 })();
-
