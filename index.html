@@ -40,9 +40,13 @@
 
 
 <section id="qa" class="card">
-<h2>Scoped Samvad Q&A</h2>
-<p>API wiring comes in Phase 5. For now this is a placeholder.</p>
+  <h2>Scoped Samvad Q&A</h2>
+  <p>API wiring comes in Phase 5. For now this is a placeholder.</p>
+  <button id="btnAsk" style="margin-top:8px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer">
+    Try Q&A (demo)
+  </button>
 </section>
+
 </main>
 
 
@@ -82,6 +86,21 @@
 </script>
 <!-- keep exactly one app.js include, below the module block -->
 <script src="/app.js" defer></script>
+  <!-- Paywall Modal -->
+<div id="paywall" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6);">
+  <div style="background:#1e2233; color:#e9eef7; max-width:520px; margin:10vh auto; padding:20px; border-radius:12px; border:1px solid #23273a">
+    <h3 style="margin-top:0">Trial ended — Upgrade to continue</h3>
+    <p>You’ve enjoyed full access to Atma Samvad during your 3-day trial. To continue your journey with Sri Aurobindo & The Mother, please upgrade.</p>
+    <div style="display:flex; gap:12px; margin-top:12px">
+      <button id="btnUpgrade" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#2a3250; color:#e9eef7; cursor:pointer">
+        Upgrade (placeholder)
+      </button>
+      <button id="btnClosePaywall" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#151824; color:#e9eef7; cursor:pointer">
+        Not now
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
