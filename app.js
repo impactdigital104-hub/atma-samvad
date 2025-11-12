@@ -153,28 +153,49 @@ route();
     return Math.max(0, diffDays);
   }
 
-  async function getSamvadStatus(api) {
-    const user = api.auth.currentUser;
-    if (!user) return { allowed: false, reason: 'signin' };
+async function getSamvadStatus(api) {
+  const user = api.auth.currentUser;
+  if (!user) return { allowed: false, reason: 'signin' };
 
-    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-    const ref = api.doc(api.db, "samvad_users", user.uid);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
-      // very first hit: treat as trial (our trial init should have created it already)
-      return { allowed: true, tier: 'trial', daysLeft: 3 };
-    }
-    const data = snap.data() || {};
-    if (data.tier === 'premium') return { allowed: true, tier: 'premium' };
+  const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+  const ref = api.doc(api.db, "samvad_users", user.uid);
+  const snap = await getDoc(ref);
 
-    // trial path
-    const started = data.trialStartedAt
-      ? (data.trialStartedAt.toDate ? data.trialStartedAt.toDate() : new Date(data.trialStartedAt.seconds * 1000))
-      : new Date();
-    const left = daysLeftUTC(started);
-    return { allowed: left > 0, tier: 'trial', daysLeft: left };
+  // If no doc yet, treat as new trial (our init usually creates it)
+  if (!snap.exists()) {
+    return { allowed: true, tier: 'trial', daysLeft: 3 };
   }
 
+  const data = snap.data() || {};
+
+  // ✅ Normalize: if tier is "free", treat it exactly as "trial"
+  const tier = (data.tier === 'free') ? 'trial' : (data.tier || 'trial');
+
+  // If premium, always allowed
+  if (tier === 'premium') {
+    return { allowed: true, tier: 'premium' };
+  }
+
+  // Trial logic (3 days from trialStartedAt, UTC day math)
+  const started = data.trialStartedAt
+    ? (data.trialStartedAt.toDate ? data.trialStartedAt.toDate() : new Date(data.trialStartedAt.seconds * 1000))
+    : new Date();
+
+  function daysLeftUTC(startDate, durationDays = 3) {
+    const startUTC = new Date(Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate()
+    ));
+    const endUTC = new Date(startUTC.getTime() + durationDays * 86400000);
+    const now = new Date();
+    const diffDays = Math.ceil((endUTC - now) / 86400000);
+    return Math.max(0, diffDays);
+  }
+
+  const left = daysLeftUTC(started);
+  return { allowed: left > 0, tier, daysLeft: left };
+}
   function wire(api) {
     const askBtn = document.getElementById('btnAsk');
     const closeBtn = document.getElementById('btnClosePaywall');
