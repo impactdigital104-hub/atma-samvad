@@ -47,7 +47,8 @@
 
 
 <footer class="ftr"><div class="wrap">© Atma Vani — Samvad (MVP Shell)</div></footer>
-  <script type="module">
+
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -56,10 +57,9 @@
     apiKey: "AIzaSyBG9gtjR53FzUIBG7nk1nZJdHHinDLX2VY",
     authDomain: "atma-vani-prod.firebaseapp.com",
     projectId: "atma-vani-prod",
-    appId: "1:1043273819491:web:48ac7fac567392bb2bdf56"
-    // include these only if they exist in your config
-    storageBucket: "atma-vani-prod.firebasestorage.app",
-    measurementId: "PASTE_IF_PRESENT"
+    appId: "1:1043273819491:web:48ac7fac567392bb2bdf56",
+    storageBucket: "atma-vani-prod.firebasestorage.app"
+    // measurementId is optional; add it here if you have the real value
   };
 
   const app = initializeApp(firebaseConfig);
@@ -69,8 +69,9 @@
   // Expose for app.js
   window.__samvad = { auth, provider, signInWithPopup, signOut, onAuthStateChanged };
 </script>
-<!-- keep this line below -->
-<script src="/app.js" defer></script>
+
+<!-- keep exactly one app.js include, below the module block -->
 <script src="/app.js" defer></script>
 </body>
 </html>
+
