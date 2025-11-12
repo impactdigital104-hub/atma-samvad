@@ -41,3 +41,35 @@ route();
     }
   });
 })();
+// --- Firestore: create/patch samvad_users doc on sign-in ---
+(function fsUserDoc() {
+  function wire(api) {
+    api.onAuthStateChanged(api.auth, async (user) => {
+      if (!user) return;
+      try {
+        const ref = api.doc(api.db, "samvad_users", user.uid);
+        await api.setDoc(ref, {
+          uid: user.uid,
+          name: user.displayName || null,
+          email: user.email || null,
+          photoURL: user.photoURL || null,
+          tier: "free",                 // default; will flip to 'premium' after payment
+          lastSeen: api.serverTimestamp(),
+          createdAt: api.serverTimestamp()
+        }, { merge: true });
+      } catch (e) {
+        console.error("samvad_users write failed:", e);
+        alert("Could not save profile (samvad). Please check Firestore rules/console.");
+      }
+    });
+  }
+
+  // Wait until Firebase is exposed by index.html
+  (function wait(tries = 0) {
+    const api = window.__samvad;
+    if (api && api.db && api.auth) return wire(api);
+    if (tries > 20) return; // stop after ~6s
+    setTimeout(() => wait(tries + 1), 300);
+  })();
+})();
+
