@@ -133,3 +133,80 @@ route();
     setTimeout(() => wait(tries + 1), 300);
   })();
 })();
+// --- Gate: allow actions only if trial active or premium ---
+(function samvadGate() {
+  function showPaywall(show) {
+    const m = document.getElementById('paywall');
+    if (m) m.style.display = show ? 'block' : 'none';
+  }
+
+  // Reuse logic consistent with our trial handler
+  function daysLeftUTC(startDate, durationDays = 3) {
+    const startUTC = new Date(Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate()
+    ));
+    const endUTC = new Date(startUTC.getTime() + durationDays * 86400000);
+    const now = new Date();
+    const diffDays = Math.ceil((endUTC - now) / 86400000);
+    return Math.max(0, diffDays);
+  }
+
+  async function getSamvadStatus(api) {
+    const user = api.auth.currentUser;
+    if (!user) return { allowed: false, reason: 'signin' };
+
+    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const ref = api.doc(api.db, "samvad_users", user.uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      // very first hit: treat as trial (our trial init should have created it already)
+      return { allowed: true, tier: 'trial', daysLeft: 3 };
+    }
+    const data = snap.data() || {};
+    if (data.tier === 'premium') return { allowed: true, tier: 'premium' };
+
+    // trial path
+    const started = data.trialStartedAt
+      ? (data.trialStartedAt.toDate ? data.trialStartedAt.toDate() : new Date(data.trialStartedAt.seconds * 1000))
+      : new Date();
+    const left = daysLeftUTC(started);
+    return { allowed: left > 0, tier: 'trial', daysLeft: left };
+  }
+
+  function wire(api) {
+    const askBtn = document.getElementById('btnAsk');
+    const closeBtn = document.getElementById('btnClosePaywall');
+    const upgradeBtn = document.getElementById('btnUpgrade');
+    if (closeBtn) closeBtn.addEventListener('click', () => showPaywall(false));
+    if (upgradeBtn) upgradeBtn.addEventListener('click', () => {
+      // Placeholder: we will wire Razorpay later
+      alert('Upgrade flow will appear here.');
+      showPaywall(false);
+    });
+
+    if (askBtn) {
+      askBtn.addEventListener('click', async () => {
+        const apiRef = window.__samvad;
+        if (!apiRef || !apiRef.auth || !apiRef.db) return alert('Please reload the page.');
+
+        const status = await getSamvadStatus(apiRef);
+        if (!status.allowed) {
+          // If not signed in, auth block handles the button label—still show paywall copy for clarity
+          showPaywall(true);
+          return;
+        }
+        // Allowed path (trial active or premium)
+        alert('✅ Allowed: this is where the Q&A API call will run.');
+      });
+    }
+  }
+
+  (function wait(tries = 0) {
+    const api = window.__samvad;
+    if (api && api.db && api.auth) return wire(api);
+    if (tries > 20) return;
+    setTimeout(() => wait(tries + 1), 300);
+  })();
+})();
