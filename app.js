@@ -119,7 +119,7 @@
 // --- Trial banner controller ---
 (function trialBanner() {
   function daysLeftUTC(startDate, durationDays = 3) {
-    const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+    const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getMonth(), startDate.getDate()));
     const endUTC = new Date(startUTC.getTime() + durationDays * 86400000);
     const now = new Date();
     return Math.max(0, Math.ceil((endUTC - now) / 86400000));
@@ -228,7 +228,8 @@
     setTimeout(()=>wait(tries+1),300);
   })();
 })();
-// --- Q&A: UI handler + API caller ---
+
+// --- Q&A: UI handler + API caller + history ---
 (function qaModule(){
   const input = document.getElementById('qaInput');
   const askBtn = document.getElementById('btnAsk');
@@ -437,5 +438,3 @@
     setTimeout(()=>wait(tries+1),300);
   })();
 })();
-})();
-
