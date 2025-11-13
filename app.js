@@ -257,14 +257,23 @@
   }
 
   // Recent Q&A history renderer
-  function renderHistory(entries){
+    function renderHistory(entries){
     if (!historyEl || !historyWrap) return;
+
+    // Always show the panel
+    historyWrap.style.display = 'block';
+
+    // If nothing to show yet, display a friendly placeholder
     if (!entries || !entries.length) {
-      historyWrap.style.display = 'none';
-      historyEl.innerHTML = '';
+      historyEl.innerHTML = `
+        <div style="font-size:0.85rem;color:var(--muted);">
+          Your recent questions will appear here as you ask them.
+        </div>
+      `;
       return;
     }
-    historyWrap.style.display = 'block';
+
+    // Otherwise render the list
     historyEl.innerHTML = entries.map(e => {
       const depthLabel = e.depth === 'scholar' ? 'In-depth' : 'Simple';
       const when = e.createdAt
@@ -282,7 +291,6 @@
       `;
     }).join('');
   }
-
   async function callSamvadQA(question, depth){
     // Envelope expected by your backend
     const payload = {
