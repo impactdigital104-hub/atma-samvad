@@ -1,4 +1,247 @@
 // FILE: app.js
+// FILE: app.js
+
+// --- Guided Reading: 21 Days with Integral Yoga ---
+// This is data-only for now. UI and logic will be added in later steps.
+
+const integralYogaJourneyDays = [
+  {
+    day: 1,
+    phase: "Foundations",
+    title: "What is Integral Yoga?",
+    work: "Sri Aurobindo — The Synthesis of Yoga",
+    theme: "Aim of the yoga",
+    excerpt:
+      "[[Insert authentic passage explaining the aim of Integral Yoga — that it seeks to transform the whole being and life, not to escape the world.]]",
+    reflectionHint:
+      "Notice one place in your day where you feel pulled outward by habit. Quietly remember that yoga is about transforming life, not running away from it."
+  },
+  {
+    day: 2,
+    phase: "Foundations",
+    title: "The Divine in Life, not Only Beyond",
+    work: "Sri Aurobindo — The Life Divine or Essays on the Gita",
+    theme: "Divine presence in the world",
+    excerpt:
+      "[[Insert passage that shows the Divine is present in all and seeks manifestation in life, not only in a distant heaven or nirvana.]]",
+    reflectionHint:
+      "As you move through your day, pick one ordinary situation and briefly try to see it as a place where the Divine is also present."
+  },
+  {
+    day: 3,
+    phase: "Foundations",
+    title: "The Psychic Being",
+    work: "Sri Aurobindo — Letters on Yoga",
+    theme: "The soul-personality within",
+    excerpt:
+      "[[Insert passage describing the psychic being as the inner soul-personality that quietly guides towards truth, beauty and love for the Divine.]]",
+    reflectionHint:
+      "At some quiet moment, place your hand on your heart and simply ask within for guidance, without forcing any answer."
+  },
+  {
+    day: 4,
+    phase: "Foundations",
+    title: "Aspiration",
+    work: "Sri Aurobindo & The Mother — Letters and Talks",
+    theme: "True aspiration vs restless desire",
+    excerpt:
+      "[[Insert passage clarifying aspiration as a steady, quiet upward movement of the being towards the Divine, not restless emotional wanting.]]",
+    reflectionHint:
+      "Today, when you feel a strong desire, pause and ask: is this a true aspiration or just a restless wanting?"
+  },
+  {
+    day: 5,
+    phase: "Foundations",
+    title: "Rejection of Lower Movements",
+    work: "Sri Aurobindo — Letters on Yoga",
+    theme: "Handling undesirable movements",
+    excerpt:
+      "[[Insert passage on quietly rejecting falsehood, fear, anger, and other lower movements, without violent suppression or guilt.]]",
+    reflectionHint:
+      "If an unhelpful thought or emotion arises, simply see it, say ‘this is not what I choose’, and let it pass without self-hatred."
+  },
+  {
+    day: 6,
+    phase: "Foundations",
+    title: "Surrender",
+    work: "Sri Aurobindo — The Synthesis of Yoga / Letters on Yoga",
+    theme: "True meaning of surrender",
+    excerpt:
+      "[[Insert passage explaining surrender as a conscious giving of oneself to the Divine, not passivity or bargaining for results.]]",
+    reflectionHint:
+      "Take one difficulty and, inwardly, offer it to the Divine with the simple attitude: ‘Do what is best through me.’"
+  },
+  {
+    day: 7,
+    phase: "Foundations",
+    title: "The Aids to Sadhana",
+    work: "Sri Aurobindo — The Synthesis of Yoga (The Four Aids)",
+    theme: "Self, Guru, Shastra, Time",
+    excerpt:
+      "[[Insert passage summarising the aids of the inner being, the Guru, the teaching, and the working of Time and Grace.]]",
+    reflectionHint:
+      "Try to feel today how you are not alone in your effort — there is guidance, teaching, and a larger Force helping quietly."
+  },
+  {
+    day: 8,
+    phase: "Work & Life",
+    title: "Work as Offering",
+    work: "Sri Aurobindo — Letters on Yoga",
+    theme: "Transforming work into sadhana",
+    excerpt:
+      "[[Insert passage on doing work as an offering to the Divine rather than for ego, ambition or fear.]]",
+    reflectionHint:
+      "Choose one task today — at home or work — and consciously offer it to the Divine before you begin."
+  },
+  {
+    day: 9,
+    phase: "Work & Life",
+    title: "Equality in Success and Failure",
+    work: "Sri Aurobindo — Essays on the Gita or Letters on Yoga",
+    theme: "Inner equality",
+    excerpt:
+      "[[Insert passage explaining true samata: inner equality amidst success and failure, pleasure and pain.]]",
+    reflectionHint:
+      "When something today feels like a ‘success’ or ‘failure’, watch your reaction and quietly remember the deeper equality."
+  },
+  {
+    day: 10,
+    phase: "Work & Life",
+    title: "Making the Home a Place of Sadhana",
+    work: "The Mother — Talks / Questions and Answers",
+    theme: "Atmosphere in the house",
+    excerpt:
+      "[[Insert passage about creating a conscious, peaceful, sincere atmosphere at home as part of yoga.]]",
+    reflectionHint:
+      "Notice the atmosphere in your home today. Is there one small thing you can do to make it more peaceful, sincere, or harmonious?"
+  },
+  {
+    day: 11,
+    phase: "Work & Life",
+    title: "Relationships and Harmony",
+    work: "Sri Aurobindo — Letters on Yoga",
+    theme: "Human relations in yoga",
+    excerpt:
+      "[[Insert passage on dealing with frictions and misunderstandings, seeing others’ nature, and bringing goodwill into relationships.]]",
+    reflectionHint:
+      "In one relationship where there is strain, inwardly offer goodwill and ask for a truer understanding of the other person."
+  },
+  {
+    day: 12,
+    phase: "Work & Life",
+    title: "Children and True Education",
+    work: "The Mother — On Education / Questions and Answers",
+    theme: "Soul-centered education",
+    excerpt:
+      "[[Insert passage on seeing the child as a soul in growth and the true aim of education beyond marks and performance.]]",
+    reflectionHint:
+      "If you have contact with a child today, try to look beyond behaviour and imagine the soul within that is growing."
+  },
+  {
+    day: 13,
+    phase: "Work & Life",
+    title: "Anger and Emotional Disturbance",
+    work: "Sri Aurobindo — Letters on Yoga",
+    theme: "Dealing with vital storms",
+    excerpt:
+      "[[Insert passage about the nature of anger and vital disturbances and how to take a quieter, more conscious stand towards them.]]",
+    reflectionHint:
+      "If irritation or anger arises today, try to step back inwardly for a moment before speaking or acting."
+  },
+  {
+    day: 14,
+    phase: "Work & Life",
+    title: "Quietude in Daily Activity",
+    work: "Sri Aurobindo — Letters on Yoga / Questions and Answers",
+    theme: "Inner quiet and recollection",
+    excerpt:
+      "[[Insert passage about cultivating inner quietude and remembrance even while remaining active in life.]]",
+    reflectionHint:
+      "Take one minute during your day simply to sit, breathe, and feel a quiet presence within, without forcing anything."
+  },
+  {
+    day: 15,
+    phase: "Difficulties & Faith",
+    title: "Why Difficulties Come",
+    work: "Sri Aurobindo — Letters on Yoga",
+    theme: "Purpose of difficulties",
+    excerpt:
+      "[[Insert passage explaining that difficulties are part of the process of growth and purification, not punishments.]]",
+    reflectionHint:
+      "Look at one difficulty in your life and, just for a moment, consider that it may have a deeper purpose for your growth."
+  },
+  {
+    day: 16,
+    phase: "Difficulties & Faith",
+    title: "Facing Fear",
+    work: "Sri Aurobindo — Letters on Yoga / The Mother — Prayers and Meditations",
+    theme: "Understanding and overcoming fear",
+    excerpt:
+      "[[Insert passage on the nature of fear and turning towards the Divine Presence as support and protection.]]",
+    reflectionHint:
+      "When you notice fear today, instead of only arguing with it, try a quiet call or remembrance of the Divine within."
+  },
+  {
+    day: 17,
+    phase: "Difficulties & Faith",
+    title: "Depression and Discouragement",
+    work: "Sri Aurobindo — Letters on Yoga",
+    theme: "Walking through low states",
+    excerpt:
+      "[[Insert passage about recognising depression and discouragement, not identifying with them, and waiting with patience and faith.]]",
+    reflectionHint:
+      "If a low mood appears, see if you can say: ‘This is a weather passing through my nature; it is not my deepest self.’"
+  },
+  {
+    day: 18,
+    phase: "Difficulties & Faith",
+    title: "Faith and Trust in the Mother",
+    work: "Sri Aurobindo — Letters on Yoga / The Mother — Prayers and Meditations",
+    theme: "Quiet, steady faith",
+    excerpt:
+      "[[Insert passage on the nature of true faith and trust, beyond emotional excitement and doubt.]]",
+    reflectionHint:
+      "Even if nothing special happens today, try to hold one quiet inner sentence of trust, in your own words, addressed to the Mother or the Divine."
+  },
+  {
+    day: 19,
+    phase: "Difficulties & Faith",
+    title: "Perseverance and Long Patience",
+    work: "Sri Aurobindo — The Synthesis of Yoga / Letters on Yoga",
+    theme: "Long labour of the yoga",
+    excerpt:
+      "[[Insert passage about the long, patient nature of the work of transformation and the need for steady perseverance.]]",
+    reflectionHint:
+      "Think of one area where you feel slow progress. Instead of frustration, see if you can offer just a little more steady perseverance."
+  },
+  {
+    day: 20,
+    phase: "Difficulties & Faith",
+    title: "The Joy of Progress",
+    work: "The Mother — Talks / Sri Aurobindo — Letters on Yoga",
+    theme: "True joy in inner growth",
+    excerpt:
+      "[[Insert passage on the quiet, deep joy that comes from inner progress, different from outer excitement and pleasure.]]",
+    reflectionHint:
+      "Notice any small inner movement today — a bit more patience, a slightly kinder response — and allow yourself to feel quietly happy about it."
+  },
+  {
+    day: 21,
+    phase: "Difficulties & Faith",
+    title: "The Greater Evolutionary Vision",
+    work: "Sri Aurobindo — The Life Divine / Savitri",
+    theme: "Personal effort in a larger evolution",
+    excerpt:
+      "[[Insert passage that links personal transformation to the larger evolutionary movement and the supramental aim.]]",
+    reflectionHint:
+      "Take a moment to imagine that your sincere efforts, however small, are part of a much larger movement of consciousness on earth."
+  }
+];
+
+// --- Basic router (hash-based) ---
+(function router(){
+  const app = document.getElementById('app');
+  ...
 
 // --- Basic router (hash-based) ---
 (function router(){
