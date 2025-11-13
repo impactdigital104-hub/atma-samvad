@@ -336,7 +336,7 @@
   }
 
   // Load recent Q&A from Firestore for the current user
-  async function loadSamvadHistory(api, user){
+   async function loadSamvadHistory(api, user){
     if (!historyEl || !historyWrap) return;
     try {
       const { getDocs, collection } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
@@ -345,7 +345,8 @@
       const all = [];
       snap.forEach(doc => {
         const d = doc.data() || {};
-        if (d.uid !== user.uid) return;
+
+        // TEMP: show all entries (we can re-add uid filter later)
         let createdAt = null;
         if (d.createdAt && d.createdAt.toDate) {
           createdAt = d.createdAt.toDate();
@@ -359,6 +360,8 @@
         });
       });
 
+      console.log('Samvad history docs found:', all.length);
+
       // Sort newest first and take last 5
       all.sort((a, b) => {
         const ta = a.createdAt ? a.createdAt.getTime() : 0;
@@ -370,7 +373,7 @@
       renderHistory(latest);
     } catch (e) {
       console.error('loadSamvadHistory error:', e);
-      // On error, just hide history so UI doesn't break
+      // On error, just show the placeholder
       renderHistory([]);
     }
   }
