@@ -229,7 +229,7 @@
   })();
 })();
 
-// --- Q&A: UI handler + API caller ---
+// --- Q&A: UI handler + API caller + Firestore logging ---
 (function qaModule(){
   const input = document.getElementById('qaInput');
   const askBtn = document.getElementById('btnAsk');
@@ -252,14 +252,7 @@
   }
 
   async function callSamvadQA(question, depth){
-    // Envelope expected by your backend
-    const payload = {
-      mode: "samvad",
-      guru: "aurobindo",
-      action: "qa",
-      depth,            // "plain" | "scholar"
-      question
-    };
+    const payload = { mode: "samvad", guru: "aurobindo", action: "qa", depth, question };
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
@@ -269,7 +262,25 @@
       const txt = await res.text().catch(()=>String(res.status));
       throw new Error(`API ${res.status}: ${txt}`);
     }
-    return res.json(); // should be { answer: string, sources?: string[] }
+    return res.json(); // { answer, sources? }
+  }
+
+  async function saveQnA(question, depth, data){
+    const api = window.__samvad;
+    if (!api || !api.auth?.currentUser) return;
+    const uid = api.auth.currentUser.uid;
+
+    const { addDoc, collection, serverTimestamp } =
+      await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+
+    const col = collection(api.db, "samvad_qna", uid, "items");
+    await addDoc(col, {
+      question,
+      depth,
+      answer: data?.answer || '',
+      sources: data?.sources || [],
+      createdAt: serverTimestamp()
+    });
   }
 
   async function onAsk(){
@@ -296,12 +307,12 @@
       renderAnswer(data.answer || '(no answer)', data.sources || []);
       setStatus('');
 
+      // Save to Firestore (best-effort)
+      try { await saveQnA(q, depth, data); } catch (e) { console.warn('QnA save failed:', e); }
+
     } catch (e) {
       console.error(e);
       setStatus('Error. Is /api/chat configured on this domain?');
-      // Helpful hint for MVP:
-      // If this is 404, your backend isn’t available on samvad subdomain.
-      // We’ll hook the rewrite from www.atmavani.life to /samvad later.
     } finally {
       askBtn.disabled = false;
     }
