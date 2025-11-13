@@ -276,6 +276,8 @@
   // NEW: Log each successful Q&A to Firestore
   async function logSamvadQA(api, question, depth, answer, sources){
     try {
+      console.log('logSamvadQA called', { question, depth });   // 👈 NEW
+
       const user = api.auth.currentUser;
       if (!user) return; // only log for signed-in users
 
