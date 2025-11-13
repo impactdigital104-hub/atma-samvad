@@ -46,34 +46,69 @@
       </ul>
     </section>
 
-    <section id="qa" class="card">
-      <h2>Scoped Samvad Q&A</h2>
+   <section id="qa" class="card">
+  <h2>Scoped Samvad Q&A</h2>
+  <p style="margin:4px 0 12px;color:var(--muted);font-size:0.9rem;">
+    Ask about Sri Aurobindo, The Mother, and Integral Yoga. Choose <strong>Simple</strong> for a short explanation or <strong>In-depth</strong> for a deeper dive.
+  </p>
 
-      <div class="card" style="margin-top:12px">
-        <label for="qaInput" style="display:block;margin-bottom:8px">Ask a question about Sri Aurobindo & The Mother</label>
-        <textarea id="qaInput" rows="4" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text)"></textarea>
+  <div class="card" style="margin-top:12px">
+    <label for="qaInput" style="display:block;margin-bottom:8px">
+      Ask a question about Sri Aurobindo &amp; The Mother
+    </label>
+    <textarea
+      id="qaInput"
+      rows="4"
+      style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text)"
+    ></textarea>
 
-        <div style="margin-top:8px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-          <div>
-  <label><input type="radio" name="depth" value="plain" checked /> Simple</label>
-  <label style="margin-left:8px"><input type="radio" name="depth" value="scholar" /> In-depth</label>
-</div>
-<button id="btnAsk" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer">
-  Ask
-</button>
-<span id="qaStatus" style="color:var(--muted)"></span>
-        </div>
+    <div style="margin-top:8px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div>
+        <label><input type="radio" name="depth" value="plain" checked /> Simple</label>
+        <label style="margin-left:8px"><input type="radio" name="depth" value="scholar" /> In-depth</label>
+      </div>
+      <button
+        id="btnAsk"
+        style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer"
+      >
+        Ask
+      </button>
+      <span id="qaStatus" style="color:var(--muted)"></span>
+    </div>
 
-  <div id="qaOutput" style="margin-top:12px;white-space:pre-wrap;line-height:1.55"></div>
-<div id="qaSources" style="margin-top:8px;color:var(--muted);font-size:0.95em"></div>
+    <div
+      id="qaOutput"
+      style="margin-top:12px;white-space:pre-wrap;line-height:1.55"
+    ></div>
 
-<div id="qaHistoryWrap" style="margin-top:16px;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--card);">
-  <div style="font-weight:600;margin-bottom:8px;">Your recent questions</div>
-  <div id="qaHistory" style="font-size:0.9rem;color:var(--muted);">
-    <!-- Filled by app.js -->
+    <div style="margin-top:8px;display:flex;justify-content:flex-end">
+      <button
+        id="btnCopyAnswer"
+        style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:0.85rem;cursor:pointer"
+      >
+        Copy answer
+      </button>
+    </div>
+
+    <div
+      id="qaSources"
+      style="margin-top:8px;color:var(--muted);font-size:0.95em"
+    ></div>
+
+    <div
+      id="qaHistoryWrap"
+      style="margin-top:16px;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--card);"
+    >
+      <div style="font-weight:600;margin-bottom:8px;">Your recent questions</div>
+      <div
+        id="qaHistory"
+        style="font-size:0.9rem;color:var(--muted);"
+      >
+        <!-- Filled by app.js -->
+      </div>
+    </div>
   </div>
-</div>
-    </section>
+</section>
   </main>
 
   <footer class="ftr"><div class="wrap">© Atma Vani — Samvad (MVP)</div></footer>
