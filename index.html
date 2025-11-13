@@ -14,7 +14,8 @@
       <nav>
         <a href="#hub" class="nav">Hub</a>
         <a href="#aurobindo" class="nav">Sri Aurobindo</a>
-        <a href="#qa" class="nav">Samvad Q&A</a>
+        <!-- CHANGED: Q&A now lives on the Sri Aurobindo page -->
+        <a href="#aurobindo" class="nav">Samvad Q&A</a>
         <button id="btnAuth" class="nav" style="border:none;background:none;cursor:pointer">Sign in</button>
         <span id="badge" class="nav" aria-live="polite"></span>
       </nav>
@@ -34,9 +35,10 @@
   <main class="wrap" id="app">
     <section id="hub" class="card">
       <h2>Samvad Hub</h2>
-      <p>Welcome. This is the isolated build for Sri Aurobindo & The Mother. Trial gating and Q&A are active on this page.</p>
+      <p>Welcome. This is the isolated build for Sri Aurobindo &amp; The Mother. Trial gating and Q&amp;A are active on this page.</p>
     </section>
 
+    <!-- CHANGED: Sri Aurobindo route now contains Start Here + Guided Reading teaser + Q&A -->
     <section id="aurobindo" class="card">
       <h2>Sri Aurobindo — Start Here</h2>
       <ul>
@@ -44,71 +46,84 @@
         <li>Guided Reading placeholder</li>
         <li>Depth Dial placeholder</li>
       </ul>
+
+      <!-- You can later replace this with the real Day 1 UI -->
+      <div class="card" style="margin-top:20px">
+        <h3>Guided Reading — 21 Days with Integral Yoga (coming soon)</h3>
+        <p style="margin:8px 0 0;">
+          This section will gently walk you through a 21-day journey using selected passages from Sri Aurobindo and The Mother,
+          starting with Days 1–2 during the free trial and unlocking the full path for subscribers.
+        </p>
+      </div>
+
+      <hr style="margin:24px 0;border:none;border-top:1px solid #ddd;" />
+
+      <h2>Scoped Samvad Q&amp;A</h2>
+      <p style="margin:4px 0 12px;color:var(--muted);font-size:0.9rem;">
+        Ask about Sri Aurobindo, The Mother, and Integral Yoga. Choose <strong>Simple</strong> for a short explanation or
+        <strong>In-depth</strong> for a deeper dive.
+      </p>
+
+      <!-- Q&A block moved here from the old #qa route -->
+      <div class="card" style="margin-top:12px">
+        <label for="qaInput" style="display:block;margin-bottom:8px">
+          Ask a question about Sri Aurobindo &amp; The Mother
+        </label>
+        <textarea
+          id="qaInput"
+          rows="4"
+          style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text)"
+        ></textarea>
+
+        <div style="margin-top:8px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <div>
+            <label><input type="radio" name="depth" value="plain" checked /> Simple</label>
+            <label style="margin-left:8px"><input type="radio" name="depth" value="scholar" /> In-depth</label>
+          </div>
+          <button
+            id="btnAsk"
+            style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer"
+          >
+            Ask
+          </button>
+          <span id="qaStatus" style="color:var(--muted)"></span>
+        </div>
+
+        <div
+          id="qaOutput"
+          style="margin-top:12px;white-space:pre-wrap;line-height:1.55"
+        ></div>
+
+        <div style="margin-top:8px;display:flex;justify-content:flex-end">
+          <button
+            id="btnCopyAnswer"
+            style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:0.85rem;cursor:pointer"
+          >
+            Copy answer
+          </button>
+        </div>
+
+        <div
+          id="qaSources"
+          style="margin-top:8px;color:var(--muted);font-size:0.95em"
+        ></div>
+
+        <div
+          id="qaHistoryWrap"
+          style="margin-top:16px;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--card);"
+        >
+          <div style="font-weight:600;margin-bottom:8px;">Your recent questions</div>
+          <div
+            id="qaHistory"
+            style="font-size:0.9rem;color:var(--muted);"
+          >
+            <!-- Filled by app.js -->
+          </div>
+        </div>
+      </div>
     </section>
 
-   <section id="qa" class="card">
-  <h2>Scoped Samvad Q&A</h2>
-  <p style="margin:4px 0 12px;color:var(--muted);font-size:0.9rem;">
-    Ask about Sri Aurobindo, The Mother, and Integral Yoga. Choose <strong>Simple</strong> for a short explanation or <strong>In-depth</strong> for a deeper dive.
-  </p>
-
-  <div class="card" style="margin-top:12px">
-    <label for="qaInput" style="display:block;margin-bottom:8px">
-      Ask a question about Sri Aurobindo &amp; The Mother
-    </label>
-    <textarea
-      id="qaInput"
-      rows="4"
-      style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text)"
-    ></textarea>
-
-    <div style="margin-top:8px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-      <div>
-        <label><input type="radio" name="depth" value="plain" checked /> Simple</label>
-        <label style="margin-left:8px"><input type="radio" name="depth" value="scholar" /> In-depth</label>
-      </div>
-      <button
-        id="btnAsk"
-        style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer"
-      >
-        Ask
-      </button>
-      <span id="qaStatus" style="color:var(--muted)"></span>
-    </div>
-
-    <div
-      id="qaOutput"
-      style="margin-top:12px;white-space:pre-wrap;line-height:1.55"
-    ></div>
-
-    <div style="margin-top:8px;display:flex;justify-content:flex-end">
-      <button
-        id="btnCopyAnswer"
-        style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:0.85rem;cursor:pointer"
-      >
-        Copy answer
-      </button>
-    </div>
-
-    <div
-      id="qaSources"
-      style="margin-top:8px;color:var(--muted);font-size:0.95em"
-    ></div>
-
-    <div
-      id="qaHistoryWrap"
-      style="margin-top:16px;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--card);"
-    >
-      <div style="font-weight:600;margin-bottom:8px;">Your recent questions</div>
-      <div
-        id="qaHistory"
-        style="font-size:0.9rem;color:var(--muted);"
-      >
-        <!-- Filled by app.js -->
-      </div>
-    </div>
-  </div>
-</section>
+    <!-- CHANGED: old <section id="qa">…</section> has been removed entirely -->
   </main>
 
   <footer class="ftr"><div class="wrap">© Atma Vani — Samvad (MVP)</div></footer>
@@ -117,7 +132,7 @@
   <div id="paywall" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6);">
     <div style="background:#1e2233; color:#e9eef7; max-width:520px; margin:10vh auto; padding:20px; border-radius:12px; border:1px solid #23273a">
       <h3 style="margin-top:0">Trial ended — Upgrade to continue</h3>
-      <p>You’ve enjoyed full access to Atma Samvad during your 3-day trial. To continue your journey with Sri Aurobindo & The Mother, please upgrade.</p>
+      <p>You’ve enjoyed full access to Atma Samvad during your 3-day trial. To continue your journey with Sri Aurobindo &amp; The Mother, please upgrade.</p>
       <div style="display:flex; gap:12px; margin-top:12px">
         <button id="btnUpgrade" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#2a3250; color:#e9eef7; cursor:pointer">
           Upgrade (placeholder)
