@@ -1,133 +1,319 @@
-// FILE: api/chat.js
-// Real OpenAI-backed Q&A for Atma Samvad — Sri Aurobindo & The Mother.
+// FILE: app.js
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+// --- Basic router (hash-based) ---
+(function router(){
+  const app = document.getElementById('app');
+  function route(){
+    const hash = location.hash || '#hub';
+    document.querySelectorAll('main section').forEach(s=>{
+      s.style.display = ('#'+s.id===hash)?'block':'none';
+    });
+  }
+  window.addEventListener('hashchange', route);
+  route();
+})();
 
-module.exports = async (req, res) => {
-  try {
-    // Only allow POST
-    if (req.method !== "POST") {
-      res.setHeader("Allow", "POST");
-      return res.status(405).json({ error: "Method Not Allowed" });
-    }
+// --- Auth mini-wire (resilient) ---
+(function authMini() {
+  const btn = document.getElementById('btnAuth');
+  const badge = document.getElementById('badge');
 
-    // Parse body safely (handles both JSON and already-parsed objects)
-    let body = {};
-    try {
-      body =
-        typeof req.body === "string"
-          ? JSON.parse(req.body || "{}")
-          : (req.body || {});
-    } catch {
-      body = {};
-    }
-
-    const { question = "", depth = "plain", mode, guru, action } = body;
-
-    // Envelope validation: keep exactly as before
-    if (mode !== "samvad" || guru !== "aurobindo" || action !== "qa") {
-      return res.status(400).json({
-        error: "Bad request envelope",
-        got: { mode, guru, action }
-      });
-    }
-
-    if (!question.trim()) {
-      return res.status(400).json({ error: "Question required" });
-    }
-
-    if (!OPENAI_API_KEY) {
-      console.error("OPENAI_API_KEY is not set in environment variables");
-      return res
-        .status(500)
-        .json({ error: "Server misconfigured: missing OpenAI API key" });
-    }
-
-    // Style instruction based on depth (plain vs scholar)
-    const styleInstruction =
-      depth === "scholar"
-        ? `
-You are answering in SCHOLAR mode.
-• Go a bit deeper into Sri Aurobindo's and The Mother's concepts.
-• When helpful, mention key ideas like Integral Yoga, the psychic being, transformation of consciousness, evolution, supramental, etc.
-• Where fitting, refer to specific works (for example: *The Life Divine*, *The Synthesis of Yoga*, *Savitri*, *Letters on Yoga*, or The Mother's *Prayers and Meditations*), but do NOT invent exact page numbers or quotations.
-• Use clear, structured paragraphs and define Sanskrit terms briefly when you use them.
-`
-        : `
-You are answering in PLAIN mode.
-• Speak simply and warmly, like a friendly guide.
-• Prefer short paragraphs (2–4 lines).
-• Avoid heavy jargon; if you use a Sanskrit or technical term, explain it in everyday language.
-• Focus on giving a practical, heart-centred explanation that an educated but non-specialist reader can follow.
-`;
-
-    // Core system prompt: keep scope narrow and safe
-    const systemPrompt = `
-You are "Atma Samvad – Sri Aurobindo & The Mother", an AI guide that explains the spiritual vision of Sri Aurobindo and The Mother.
-
-YOUR SCOPE:
-• You focus on their lives, writings, Integral Yoga, evolution of consciousness, and related spiritual ideas.
-• You may also draw on broad, mainstream Hindu spiritual context where it helps clarify their ideas.
-• If a question is clearly outside this scope (e.g., politics, random trivia, unrelated celebrities, non-Hindu religions, technical topics), gently say you are limited to Sri Aurobindo, The Mother, and their spiritual vision, and invite the user to reframe the question.
-
-TONE & SAFETY:
-• Be respectful, calm, non-judgmental, and clear.
-• Do NOT claim to be Sri Aurobindo, The Mother, or any realised guru. You are only an AI guide trained on their publicly available writings and related knowledge.
-• Do NOT give medical, legal, or financial advice. If asked, say you cannot advise on that and suggest speaking to a qualified professional.
-• If someone sounds distressed, hopeless, or hints at self-harm, encourage them to seek immediate help from trusted people, local helplines, or mental health professionals.
-
-ANSWERING STYLE:
-${styleInstruction}
-
-GENERAL BEHAVIOUR:
-• Answer in a single, coherent response (no bullet spam unless it truly helps clarity).
-• Stay factual and grounded. If you don't know or the teachings are not explicit, say so honestly rather than guessing.
-• Where appropriate, gently connect the answer back to central themes like inner transformation, aspiration, surrender, and the psychic being.
-`.trim();
-
-    // Build payload for OpenAI Chat Completions
-    const payload = {
-      model: "gpt-4.1-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: question }
-      ],
-      temperature: 0.4,
-      max_tokens: 900
-    };
-
-    // Call OpenAI
-    const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`
-      },
-      body: JSON.stringify(payload)
+  function wire(api) {
+    api.onAuthStateChanged(api.auth, (user) => {
+      if (user) {
+        btn.textContent = 'Sign out';
+        badge.textContent = `Hi, ${user.displayName || user.email}`;
+      } else {
+        btn.textContent = 'Sign in';
+        badge.textContent = '';
+      }
     });
 
-    if (!apiRes.ok) {
-      const errorText = await apiRes.text();
-      console.error("OpenAI API error:", apiRes.status, errorText);
-      return res.status(500).json({ error: "Upstream model error" });
-    }
-
-    const data = await apiRes.json();
-    const rawAnswer = data?.choices?.[0]?.message?.content || "";
-    const answer = (rawAnswer || "").trim();
-
-    // For now, keep a simple, honest sources list.
-    // Later, when we add a real text index / RAG, we can make this dynamic.
-    const sources = [
-      "Sri Aurobindo — The Life Divine",
-      "Sri Aurobindo — The Synthesis of Yoga",
-      "Sri Aurobindo — Savitri",
-      "The Mother — Prayers and Meditations"
-    ];
-
-    return res.status(200).json({ answer, sources });
-  } catch (e) {
-    console.error("api/chat error:", e);
-    return res.status(500).json({ error: "Internal error" });
+    btn.addEventListener('click', async () => {
+      try {
+        if (!api.auth.currentUser) {
+          await api.signInWithPopup(api.auth, api.provider);
+        } else {
+          await api.signOut(api.auth);
+        }
+      } catch (e) { alert(e.message); }
+    });
   }
-};
+
+  (function wait(tries=0){
+    const api = window.__samvad;
+    if (api && api.auth) return wire(api);
+    if (tries>20) return;
+    setTimeout(()=>wait(tries+1),300);
+  })();
+})();
+
+// --- Trial (3-day) init + header badge ---
+(function samvadTrial3Day() {
+  function daysLeftUTC(startDate, durationDays = 3) {
+    const startUTC = new Date(Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate()
+    ));
+    const endUTC = new Date(startUTC.getTime() + durationDays * 86400000);
+    const now = new Date();
+    const diffDays = Math.ceil((endUTC - now) / 86400000);
+    return Math.max(0, diffDays);
+  }
+  function setBadge(text) {
+    const badge = document.getElementById('badge');
+    if (badge) badge.textContent = text || '';
+  }
+  async function upsertUserIfNeeded(api, user) {
+    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const ref = api.doc(api.db, "samvad_users", user.uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await api.setDoc(ref, {
+        uid: user.uid,
+        name: user.displayName || null,
+        email: user.email || null,
+        photoURL: user.photoURL || null,
+        tier: "trial",
+        trialStartedAt: api.serverTimestamp(),
+        createdAt: api.serverTimestamp(),
+        lastSeen: api.serverTimestamp()
+      }, { merge: true });
+      return { tier: "trial", trialStartedAt: new Date() };
+    }
+    const data = snap.data() || {};
+    let changed = false;
+    const update = { lastSeen: api.serverTimestamp() };
+    if (!data.tier) { update.tier = "trial"; changed = true; }
+    if (!data.trialStartedAt) { update.trialStartedAt = api.serverTimestamp(); changed = true; }
+    if (changed) await api.setDoc(ref, update, { merge: true });
+    return {
+      tier: data.tier || "trial",
+      trialStartedAt: data.trialStartedAt
+        ? (data.trialStartedAt.toDate ? data.trialStartedAt.toDate() : new Date(data.trialStartedAt.seconds * 1000))
+        : new Date()
+    };
+  }
+  function wire(api) {
+    api.onAuthStateChanged(api.auth, async (user) => {
+      if (!user) { setBadge(''); return; }
+      try {
+        const info = await upsertUserIfNeeded(api, user);
+        const tierNorm = (info.tier === 'free') ? 'trial' : info.tier;
+        if (tierNorm === "premium") { setBadge("Premium"); return; }
+        const left = daysLeftUTC(info.trialStartedAt);
+        if (left > 0) setBadge(`Trial · ${left}d left`);
+        else setBadge("Trial ended · Upgrade to continue");
+      } catch (e) { console.error(e); setBadge(''); }
+    });
+  }
+  (function wait(tries = 0) {
+    const api = window.__samvad;
+    if (api && api.db && api.auth) return wire(api);
+    if (tries > 20) return;
+    setTimeout(() => wait(tries + 1), 300);
+  })();
+})();
+
+// --- Trial banner controller ---
+(function trialBanner() {
+  function daysLeftUTC(startDate, durationDays = 3) {
+    const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+    const endUTC = new Date(startUTC.getTime() + durationDays * 86400000);
+    const now = new Date();
+    return Math.max(0, Math.ceil((endUTC - now) / 86400000));
+  }
+  async function fetchStatus(api) {
+    const user = api.auth.currentUser;
+    if (!user) return { tier: 'none' };
+    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const ref = api.doc(api.db, "samvad_users", user.uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return { tier: 'trial', daysLeft: 3 };
+    const d = snap.data() || {};
+    const tier = (d.tier === 'free') ? 'trial' : (d.tier || 'trial');
+    if (tier === 'premium') return { tier };
+    const started = d.trialStartedAt
+      ? (d.trialStartedAt.toDate ? d.trialStartedAt.toDate() : new Date(d.trialStartedAt.seconds * 1000))
+      : new Date();
+    return { tier, daysLeft: daysLeftUTC(started) };
+  }
+  function setBanner(tier, daysLeft) {
+    const bar = document.getElementById('trialBanner');
+    const txt = document.getElementById('trialText');
+    if (!bar || !txt) return;
+    if (tier === 'premium') { bar.style.display = 'none'; return; }
+    if (tier === 'trial') {
+      txt.textContent = `Full access trial — ${daysLeft} day${daysLeft===1?'':'s'} left`;
+      bar.style.display = 'block';
+      return;
+    }
+    txt.textContent = `Trial ended — Upgrade to continue`;
+    bar.style.display = 'block';
+  }
+  function wire(api) {
+    const upg = document.getElementById('trialUpgrade');
+    if (upg) upg.addEventListener('click', () => { alert('Upgrade flow will appear here.'); });
+    api.onAuthStateChanged(api.auth, async () => {
+      try {
+        const s = await fetchStatus(api);
+        setBanner(s.tier, s.daysLeft || 0);
+      } catch { /* silent */ }
+    });
+  }
+  (function wait(tries=0){
+    const api = window.__samvad;
+    if (api && api.db && api.auth) return wire(api);
+    if (tries>20) return;
+    setTimeout(()=>wait(tries+1),300);
+  })();
+})();
+
+// --- Gate + Paywall + Status helper (free => trial normalization) ---
+(function samvadGate() {
+  function showPaywall(show) {
+    const m = document.getElementById('paywall');
+    if (m) m.style.display = show ? 'block' : 'none';
+  }
+
+  async function getSamvadStatus(api) {
+    const user = api.auth.currentUser;
+    if (!user) return { allowed: false, reason: 'signin' };
+
+    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const ref = api.doc(api.db, "samvad_users", user.uid);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) return { allowed: true, tier: 'trial', daysLeft: 3 };
+
+    const data = snap.data() || {};
+    const tier = (data.tier === 'free') ? 'trial' : (data.tier || 'trial');
+    if (tier === 'premium') return { allowed: true, tier: 'premium' };
+
+    function daysLeftUTC(startDate, durationDays = 3) {
+      const startUTC = new Date(Date.UTC(
+        startDate.getUTCFullYear(),
+        startDate.getUTCMonth(),
+        startDate.getUTCDate()
+      ));
+      const endUTC = new Date(startUTC.getTime() + durationDays * 86400000);
+      const now = new Date();
+      const diffDays = Math.ceil((endUTC - now) / 86400000);
+      return Math.max(0, diffDays);
+    }
+    const started = data.trialStartedAt
+      ? (data.trialStartedAt.toDate ? data.trialStartedAt.toDate() : new Date(data.trialStartedAt.seconds * 1000))
+      : new Date();
+    const left = daysLeftUTC(started);
+    return { allowed: left > 0, tier, daysLeft: left };
+  }
+
+  function wire() {
+    const closeBtn = document.getElementById('btnClosePaywall');
+    const upgradeBtn = document.getElementById('btnUpgrade');
+    if (closeBtn) closeBtn.addEventListener('click', () => showPaywall(false));
+    if (upgradeBtn) upgradeBtn.addEventListener('click', () => {
+      alert('Upgrade flow will appear here.');
+      showPaywall(false);
+    });
+    // expose for Q&A module below
+    window.__samvadGate = { getSamvadStatus, showPaywall };
+  }
+
+  (function wait(tries=0){
+    const api = window.__samvad;
+    if (api && api.db && api.auth) return wire();
+    if (tries>20) return;
+    setTimeout(()=>wait(tries+1),300);
+  })();
+})();
+
+// --- Q&A: UI handler + API caller ---
+(function qaModule(){
+  const input = document.getElementById('qaInput');
+  const askBtn = document.getElementById('btnAsk');
+  const statusEl = document.getElementById('qaStatus');
+  const out = document.getElementById('qaOutput');
+  const sourcesEl = document.getElementById('qaSources');
+
+  function setStatus(msg){ if(statusEl) statusEl.textContent = msg || ''; }
+  function getDepth(){
+    const el = document.querySelector('input[name="depth"]:checked');
+    return (el && el.value) || 'plain';
+  }
+  function renderAnswer(answer, sources){
+    out.textContent = answer || '(no answer)';
+    if (sources && sources.length){
+      sourcesEl.innerHTML = 'Sources: ' + sources.map(s=>`<span>${s}</span>`).join(' · ');
+    } else {
+      sourcesEl.innerHTML = '';
+    }
+  }
+
+  async function callSamvadQA(question, depth){
+    // Envelope expected by your backend
+    const payload = {
+      mode: "samvad",
+      guru: "aurobindo",
+      action: "qa",
+      depth,            // "plain" | "scholar"
+      question
+    };
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok){
+      const txt = await res.text().catch(()=>String(res.status));
+      throw new Error(`API ${res.status}: ${txt}`);
+    }
+    return res.json(); // should be { answer: string, sources?: string[] }
+  }
+
+  async function onAsk(){
+    const api = window.__samvad;
+    const gate = window.__samvadGate;
+    if (!api || !gate) return alert('Please reload the page.');
+    const q = (input && input.value || '').trim();
+    if (!q) { input && input.focus(); return; }
+
+    // Gate check: trial active or premium only
+    const status = await gate.getSamvadStatus(api);
+    if (!status.allowed) { gate.showPaywall(true); return; }
+
+    try {
+      setStatus('Thinking…');
+      askBtn.disabled = true;
+      renderAnswer('', []);
+      const depth = getDepth();
+
+      // Call backend
+      const data = await callSamvadQA(q, depth);
+
+      // Render
+      renderAnswer(data.answer || '(no answer)', data.sources || []);
+      setStatus('');
+
+    } catch (e) {
+      console.error(e);
+      setStatus('Error. Is /api/chat configured on this domain?');
+      // Helpful hint for MVP:
+      // If this is 404, your backend isn’t available on samvad subdomain.
+      // We’ll hook the rewrite from www.atmavani.life to /samvad later.
+    } finally {
+      askBtn.disabled = false;
+    }
+  }
+
+  function wire(){
+    if (askBtn) askBtn.addEventListener('click', onAsk);
+  }
+
+  (function wait(tries=0){
+    if (document.readyState === 'complete' || document.readyState === 'interactive') return wire();
+    if (tries>20) return;
+    setTimeout(()=>wait(tries+1),300);
+  })();
+})();
