@@ -1,5 +1,4 @@
 // FILE: app.js
-// FILE: app.js
 
 // --- Guided Reading: 21 Days with Integral Yoga ---
 // This is data-only for now. UI and logic will be added in later steps.
