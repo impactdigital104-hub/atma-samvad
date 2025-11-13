@@ -228,7 +228,6 @@
     setTimeout(()=>wait(tries+1),300);
   })();
 })();
-
 // --- Q&A: UI handler + API caller ---
 (function qaModule(){
   const input = document.getElementById('qaInput');
@@ -238,10 +237,12 @@
   const sourcesEl = document.getElementById('qaSources');
 
   function setStatus(msg){ if(statusEl) statusEl.textContent = msg || ''; }
+
   function getDepth(){
     const el = document.querySelector('input[name="depth"]:checked');
     return (el && el.value) || 'plain';
   }
+
   function renderAnswer(answer, sources){
     out.textContent = answer || '(no answer)';
     if (sources && sources.length){
@@ -257,7 +258,7 @@
       mode: "samvad",
       guru: "aurobindo",
       action: "qa",
-      depth,            // "plain" | "scholar"
+      depth,            // "plain" | "scholar" (Simple | In-depth)
       question
     };
     const res = await fetch('/api/chat', {
@@ -269,7 +270,30 @@
       const txt = await res.text().catch(()=>String(res.status));
       throw new Error(`API ${res.status}: ${txt}`);
     }
-    return res.json(); // should be { answer: string, sources?: string[] }
+    return res.json(); // { answer: string, sources?: string[] }
+  }
+
+  // NEW: Log each successful Q&A to Firestore
+  async function logSamvadQA(api, question, depth, answer, sources){
+    try {
+      const user = api.auth.currentUser;
+      if (!user) return; // only log for signed-in users
+
+      const { addDoc, collection } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+
+      await addDoc(collection(api.db, "samvad_qa"), {
+        uid: user.uid,
+        guru: "aurobindo",
+        depth,               // "plain" | "scholar"
+        question,
+        answer,
+        sources: sources || [],
+        createdAt: api.serverTimestamp()
+      });
+    } catch (e) {
+      console.error("logSamvadQA error:", e);
+      // We silently ignore logging errors so they never block the UI.
+    }
   }
 
   async function onAsk(){
@@ -293,8 +317,13 @@
       const data = await callSamvadQA(q, depth);
 
       // Render
-      renderAnswer(data.answer || '(no answer)', data.sources || []);
+      const answer = data.answer || '(no answer)';
+      const sources = data.sources || [];
+      renderAnswer(answer, sources);
       setStatus('');
+
+      // Fire-and-forget log to Firestore (do not block UI)
+      logSamvadQA(api, q, depth, answer, sources);
 
     } catch (e) {
       console.error(e);
@@ -316,4 +345,5 @@
     if (tries>20) return;
     setTimeout(()=>wait(tries+1),300);
   })();
+})();
 })();
