@@ -449,3 +449,40 @@
     setTimeout(()=>wait(tries+1),300);
   })();
 })();
+// --- Q&A: Copy answer helper ---
+(() => {
+  const btnCopy = document.getElementById("btnCopyAnswer");
+  if (!btnCopy) return;
+
+  const outputEl = document.getElementById("qaOutput");
+  const statusEl = document.getElementById("qaStatus");
+
+  let copyTimeout = null;
+
+  btnCopy.addEventListener("click", async () => {
+    if (!outputEl) return;
+
+    const text = (outputEl.textContent || "").trim();
+    if (!text) {
+      // No answer yet; nothing to copy.
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+
+      // Show a tiny "Copied!" feedback in the status area
+      if (statusEl) {
+        const original = statusEl.textContent || "";
+        statusEl.textContent = "Copied!";
+        if (copyTimeout) clearTimeout(copyTimeout);
+        copyTimeout = setTimeout(() => {
+          statusEl.textContent = original;
+        }, 1500);
+      }
+    } catch (e) {
+      console.error("Clipboard copy failed:", e);
+      // Silent fail is fine; we don't want to scare the user.
+    }
+  });
+})();
