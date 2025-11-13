@@ -1,8 +1,7 @@
 // FILE: app.js
 
 // --- Guided Reading: 21 Days with Integral Yoga ---
-// This is data-only for now. UI and logic will be added in later steps.
-
+// Data-only for now. UI and logic will be added later.
 const integralYogaJourneyDays = [
   {
     day: 1,
@@ -239,12 +238,6 @@ const integralYogaJourneyDays = [
 
 // --- Basic router (hash-based) ---
 (function router(){
-  const app = document.getElementById('app');
-  ...
-
-// --- Basic router (hash-based) ---
-(function router(){
-  const app = document.getElementById('app');
   function route(){
     const hash = location.hash || '#hub';
     document.querySelectorAll('main section').forEach(s=>{
@@ -499,7 +492,7 @@ const integralYogaJourneyDays = [
   }
 
   // Recent Q&A history renderer
-    function renderHistory(entries){
+  function renderHistory(entries){
     if (!historyEl || !historyWrap) return;
 
     // Always show the panel
@@ -533,13 +526,14 @@ const integralYogaJourneyDays = [
       `;
     }).join('');
   }
+
   async function callSamvadQA(question, depth){
     // Envelope expected by your backend
     const payload = {
       mode: "samvad",
       guru: "aurobindo",
       action: "qa",
-      depth,            // "plain" | "scholar" (Simple | In-depth)
+      depth,            // "plain" | "scholar"
       question
     };
     const res = await fetch('/api/chat', {
@@ -578,7 +572,7 @@ const integralYogaJourneyDays = [
   }
 
   // Load recent Q&A from Firestore for the current user
-   async function loadSamvadHistory(api, user){
+  async function loadSamvadHistory(api, user){
     if (!historyEl || !historyWrap) return;
     try {
       const { getDocs, collection } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
@@ -691,6 +685,7 @@ const integralYogaJourneyDays = [
     setTimeout(()=>wait(tries+1),300);
   })();
 })();
+
 // --- Q&A: Copy answer helper ---
 (() => {
   const btnCopy = document.getElementById("btnCopyAnswer");
