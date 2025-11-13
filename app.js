@@ -455,8 +455,6 @@
   if (!btnCopy) return;
 
   const outputEl = document.getElementById("qaOutput");
-  const statusEl = document.getElementById("qaStatus");
-
   let copyTimeout = null;
 
   btnCopy.addEventListener("click", async () => {
@@ -471,18 +469,19 @@
     try {
       await navigator.clipboard.writeText(text);
 
-      // Show a tiny "Copied!" feedback in the status area
-      if (statusEl) {
-        const original = statusEl.textContent || "";
-        statusEl.textContent = "Copied!";
-        if (copyTimeout) clearTimeout(copyTimeout);
-        copyTimeout = setTimeout(() => {
-          statusEl.textContent = original;
-        }, 1500);
-      }
+      // Show clear feedback on the button itself
+      const originalLabel = btnCopy.textContent || "Copy answer";
+      btnCopy.textContent = "Copied to clipboard";
+      btnCopy.disabled = true;
+
+      if (copyTimeout) clearTimeout(copyTimeout);
+      copyTimeout = setTimeout(() => {
+        btnCopy.textContent = originalLabel;
+        btnCopy.disabled = false;
+      }, 1500);
     } catch (e) {
       console.error("Clipboard copy failed:", e);
-      // Silent fail is fine; we don't want to scare the user.
+      // If copy fails, we just keep quiet for now.
     }
   });
 })();
