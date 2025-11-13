@@ -235,6 +235,8 @@
   const statusEl = document.getElementById('qaStatus');
   const out = document.getElementById('qaOutput');
   const sourcesEl = document.getElementById('qaSources');
+  const historyWrap = document.getElementById('qaHistoryWrap');
+  const historyEl = document.getElementById('qaHistory');
 
   function setStatus(msg){ if(statusEl) statusEl.textContent = msg || ''; }
 
@@ -244,12 +246,40 @@
   }
 
   function renderAnswer(answer, sources){
-    out.textContent = answer || '(no answer)';
+    if (out) out.textContent = answer || '(no answer)';
+    if (!sourcesEl) return;
     if (sources && sources.length){
       sourcesEl.innerHTML = 'Sources: ' + sources.map(s=>`<span>${s}</span>`).join(' · ');
     } else {
       sourcesEl.innerHTML = '';
     }
+  }
+
+  // Recent Q&A history renderer
+  function renderHistory(entries){
+    if (!historyEl || !historyWrap) return;
+    if (!entries || !entries.length) {
+      historyWrap.style.display = 'none';
+      historyEl.innerHTML = '';
+      return;
+    }
+    historyWrap.style.display = 'block';
+    historyEl.innerHTML = entries.map(e => {
+      const depthLabel = e.depth === 'scholar' ? 'In-depth' : 'Simple';
+      const when = e.createdAt
+        ? e.createdAt.toLocaleString()
+        : '';
+      const qRaw = e.question || '';
+      const q = qRaw.length > 140 ? qRaw.slice(0,137) + '…' : qRaw;
+      return `
+        <div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-top:8px;">
+          <div style="color:var(--muted);font-size:0.8rem;margin-bottom:4px;">
+            ${depthLabel}${when ? ' · ' + when : ''}
+          </div>
+          <div style="font-size:0.9rem;">Q: ${q}</div>
+        </div>
+      `;
+    }).join('');
   }
 
   async function callSamvadQA(question, depth){
@@ -273,11 +303,9 @@
     return res.json(); // { answer: string, sources?: string[] }
   }
 
-  // NEW: Log each successful Q&A to Firestore
+  // Log each successful Q&A to Firestore
   async function logSamvadQA(api, question, depth, answer, sources){
     try {
-      console.log('logSamvadQA called', { question, depth });   // 👈 NEW
-
       const user = api.auth.currentUser;
       if (!user) return; // only log for signed-in users
 
@@ -298,6 +326,46 @@
     }
   }
 
+  // Load recent Q&A from Firestore for the current user
+  async function loadSamvadHistory(api, user){
+    if (!historyEl || !historyWrap) return;
+    try {
+      const { getDocs, collection } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      const snap = await getDocs(collection(api.db, "samvad_qa"));
+
+      const all = [];
+      snap.forEach(doc => {
+        const d = doc.data() || {};
+        if (d.uid !== user.uid) return;
+        let createdAt = null;
+        if (d.createdAt && d.createdAt.toDate) {
+          createdAt = d.createdAt.toDate();
+        }
+        all.push({
+          id: doc.id,
+          question: d.question || '',
+          answer: d.answer || '',
+          depth: d.depth || 'plain',
+          createdAt
+        });
+      });
+
+      // Sort newest first and take last 5
+      all.sort((a, b) => {
+        const ta = a.createdAt ? a.createdAt.getTime() : 0;
+        const tb = b.createdAt ? b.createdAt.getTime() : 0;
+        return tb - ta;
+      });
+
+      const latest = all.slice(0, 5);
+      renderHistory(latest);
+    } catch (e) {
+      console.error('loadSamvadHistory error:', e);
+      // On error, just hide history so UI doesn't break
+      renderHistory([]);
+    }
+  }
+
   async function onAsk(){
     const api = window.__samvad;
     const gate = window.__samvadGate;
@@ -311,7 +379,7 @@
 
     try {
       setStatus('Thinking…');
-      askBtn.disabled = true;
+      if (askBtn) askBtn.disabled = true;
       renderAnswer('', []);
       const depth = getDepth();
 
@@ -324,22 +392,43 @@
       renderAnswer(answer, sources);
       setStatus('');
 
-      // Fire-and-forget log to Firestore (do not block UI)
-      logSamvadQA(api, q, depth, answer, sources);
+      // Fire-and-forget log to Firestore
+      if (window.__samvad && window.__samvad.auth) {
+        logSamvadQA(window.__samvad, q, depth, answer, sources)
+          .then(() => {
+            // After logging, refresh history for this user
+            const user = window.__samvad.auth.currentUser;
+            if (user) loadSamvadHistory(window.__samvad, user);
+          })
+          .catch(()=>{ /* already logged in logSamvadQA */ });
+      }
 
     } catch (e) {
       console.error(e);
       setStatus('Error. Is /api/chat configured on this domain?');
-      // Helpful hint for MVP:
-      // If this is 404, your backend isn’t available on samvad subdomain.
-      // We’ll hook the rewrite from www.atmavani.life to /samvad later.
     } finally {
-      askBtn.disabled = false;
+      if (askBtn) askBtn.disabled = false;
     }
   }
 
   function wire(){
     if (askBtn) askBtn.addEventListener('click', onAsk);
+
+    // Also load history when user signs in / changes
+    (function watchHistory(tries=0){
+      const api = window.__samvad;
+      if (!api || !api.auth) {
+        if (tries > 20) return;
+        return setTimeout(() => watchHistory(tries+1), 300);
+      }
+      api.onAuthStateChanged(api.auth, (user) => {
+        if (user) {
+          loadSamvadHistory(api, user);
+        } else {
+          renderHistory([]);
+        }
+      });
+    })();
   }
 
   (function wait(tries=0){
@@ -347,5 +436,6 @@
     if (tries>20) return;
     setTimeout(()=>wait(tries+1),300);
   })();
+})();
 })();
 
