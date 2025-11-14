@@ -247,6 +247,40 @@ const integralYogaJourneyDays = [
   window.addEventListener('hashchange', route);
   route();
 })();
+// --- Guided Journey buttons (very simple wiring) ---
+(function iyButtons(){
+  function wire(){
+    // Button on Sri Aurobindo home: "View journey"
+    var btnOpen = document.getElementById('btnIy21');
+    if (btnOpen) {
+      btnOpen.addEventListener('click', function(){
+        location.hash = '#iy-21';
+      });
+    }
+
+    // Button on journey page: "Back to Sri Aurobindo Home"
+    var btnBack = document.getElementById('btnIyBack');
+    if (btnBack) {
+      btnBack.addEventListener('click', function(){
+        location.hash = '#aurobindo';
+      });
+    }
+
+    // Button on journey page: "Mark Day 1 complete (placeholder)"
+    var btnComplete = document.getElementById('btnIyComplete');
+    if (btnComplete) {
+      btnComplete.addEventListener('click', function(){
+        alert('Later this will mark Day 1 as complete and move you forward in the journey.');
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wire);
+  } else {
+    wire();
+  }
+})();
 
 // --- Auth mini-wire (resilient) ---
 (function authMini() {
