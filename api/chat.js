@@ -273,11 +273,15 @@ Overall answering pattern
         maxWords = 120,
       } = body;
 
-      const instructions = `
+          const instructions = `
 You are helping design a 21-day guided journey with short daily readings from Sri Aurobindo and The Mother.
 
 Your task for each request:
 - Use FILE SEARCH over the provided vector store that contains authentic works of Sri Aurobindo and The Mother.
+- You will be given a "work hint" (for example: "The Synthesis of Yoga", "Letters on Yoga", "The Life Divine", "Prayers and Meditations").
+- TREAT THE WORK HINT AS A STRONG PREFERENCE:
+  - FIRST, look for passages that clearly come from that specific work or volume.
+  - ONLY IF you cannot find a sufficiently relevant passage there, you may fall back to other works in the corpus.
 - Select ONE short, self-contained passage (about ${minWords}-${maxWords} words).
 - The passage should be directly about the given theme, not a generic explanation.
 - Prefer clear, devotional or explanatory passages over very technical or obscure ones.
@@ -285,7 +289,7 @@ Your task for each request:
 - Do NOT add a title, introduction, or closing sentence.
 - Just return the passage text itself as a continuous paragraph or a few short paragraphs.
 
-If nothing perfectly matches, choose the closest helpful passage and still answer with only that passage text.
+If nothing perfectly matches, choose the closest helpful passage you can find (preferably from the hinted work) and still answer with only that passage text.
 `.trim();
 
       const userDescription = `
@@ -294,9 +298,11 @@ Please pick one short authentic passage for a guided reading.
 Day: ${day}
 Phase: ${phase}
 Theme: ${theme}
-Work hint: ${workHint}
+Work hint (strong preference for the source): ${workHint || "(none specified)"}
 
-Remember:
+Instructions:
+- First search within the work mentioned in "Work hint" if it matches a known book or volume.
+- Only if there is no good match there, broaden to other Sri Aurobindo or Mother works in the vector store.
 - Only output the passage text, with no surrounding commentary.
 - Aim for roughly ${minWords}-${maxWords} words.
 `.trim();
