@@ -1,349 +1,474 @@
-<!-- FILE: index.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <title>Atma Samvad — Sri Aurobindo &amp; The Mother · Trial + Q&amp;A</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Atma Samvad — Sri Aurobindo & The Mother (MVP)</title>
-  <link rel="stylesheet" href="/styles.css" />
+
+  <style>
+    :root {
+      --bg: #f1f3f6;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #4b5563;
+      --accent: #1f7aec;
+      --border: #d1d5db;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 16px;
+    }
+
+    header {
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    header .wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    nav a {
+      margin-left: 16px;
+      color: #e5e7eb;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 15px rgba(15, 23, 42, .08);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 16px 0;
+      border-top: 1px solid #e5e7eb;
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #e5e7eb;
+      margin-left: 8px;
+    }
+
+    .pill span {
+      font-weight: 500;
+    }
+
+    .auth-block {
+      font-size: 0.85rem;
+      color: #e5e7eb;
+    }
+
+    .auth-block button {
+      margin-left: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: transparent;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .auth-block button:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .trial-banner {
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .trial-banner span {
+      margin-right: 8px;
+    }
+
+    .trial-banner a {
+      color: inherit;
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    .trial-banner__ok {
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .trial-banner__ended {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .badge-trial {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      margin-left: 8px;
+    }
+  </style>
 </head>
+
 <body>
-  <header class="hdr">
+  <header>
     <div class="wrap">
       <h1>Atma Samvad</h1>
       <nav>
         <a href="#hub" class="nav">Hub</a>
         <a href="#aurobindo" class="nav">Sri Aurobindo</a>
-        <!-- CHANGED: Q&A now lives on the Sri Aurobindo page -->
-        <a href="#aurobindo" class="nav">Samvad Q&A</a>
-        <button id="btnAuth" class="nav" style="border:none;background:none;cursor:pointer">Sign in</button>
-        <span id="badge" class="nav" aria-live="polite"></span>
+        <a href="#aurobindo" class="nav">Samvad Q&amp;A</a>
+
+        <span id="authControls" class="auth-block">
+          <!-- Filled by app.js -->
+        </span>
       </nav>
     </div>
   </header>
 
-  <!-- Trial banner -->
-  <div id="trialBanner" style="display:none;background:#1b2336;color:#e9eef7;border-bottom:1px solid #23273a">
-    <div class="wrap" style="padding:8px 0;display:flex;justify-content:space-between;align-items:center;gap:12px">
-      <span id="trialText">Full access trial — 3 days left</span>
-      <button id="trialUpgrade" style="padding:8px 12px;border-radius:10px;border:1px solid #23273a;background:#2a3250;color:#e9eef7;cursor:pointer">
-        Upgrade
-      </button>
-    </div>
-  </div>
-
   <main class="wrap" id="app">
+    <!-- Hub / landing -->
     <section id="hub" class="card">
       <h2>Samvad Hub</h2>
-      <p>Welcome. This is the isolated build for Sri Aurobindo &amp; The Mother. Trial gating and Q&amp;A are active on this page.</p>
+      <p>
+        Welcome. This is the isolated build for Sri Aurobindo &amp; The Mother.
+        Trial gating and Q&amp;A are active on this page.
+      </p>
     </section>
 
-    <!-- CHANGED: Sri Aurobindo route now contains Start Here + Guided Reading teaser + Q&A -->
+    <!-- Sri Aurobindo Home: intro + journeys + Day 1 + Q&A -->
     <section id="aurobindo" class="card">
-     <h2>Sri Aurobindo &amp; The Mother</h2>
+      <h2>Sri Aurobindo &amp; The Mother</h2>
 
-  <p>
-    This space is for those who feel drawn to Sri Aurobindo and The Mother and
-    would like some help bringing Integral Yoga into daily life, work and family.
-  </p>
-
-  <p>
-    You will find simple explanations, short readings from their writings, and
-    gentle prompts that you can walk with at your own pace.
-  </p>
-
-  <div style="margin-top:12px;font-size:0.9rem;">
-    <div style="font-weight:600;margin-bottom:4px;">Why this space exists</div>
-    <ul style="margin:0 0 0 18px;padding:0;line-height:1.5;">
-      <li>To offer clear, trustworthy explanations of Integral Yoga in simple words.</li>
-      <li>To give gentle daily support for sadhana amidst work and family life.</li>
-      <li>To help spouses, children and friends share a common language of the path.</li>
-    </ul>
-  </div>
-
-  <div class="card" style="margin-top:20px;padding:12px 14px;">
-    <h3 style="margin-top:0;">Guided journeys</h3>
-
-    <div style="font-weight:600;font-size:0.95rem;margin:4px 0 6px;">
-      21 Days with Integral Yoga
-    </div>
-
-    <p style="margin:0 0 6px;font-size:0.9rem;line-height:1.6;">
-      A 21-day journey through selected passages of Sri Aurobindo &amp; The Mother
-      to help you understand Integral Yoga and gently bring it into your daily life
-      and family.
-    </p>
-
-    <p style="margin:0 0 6px;font-size:0.85rem;color:var(--muted);">
-      For individuals, couples and families who are new to Integral Yoga or who
-      want a simple, shared rhythm for the house.
-    </p>
-
-    <ul style="margin:0 0 8px 18px;font-size:0.85rem;line-height:1.5;">
-      <li>Short daily readings from the works.</li>
-      <li>Key idea explained in simple language.</li>
-      <li>One or two gentle practices you can try alone or together.</li>
-    </ul>
-
-    <button id="btnIy21" type="button"
-      style="margin-top:4px;padding:8px 14px;border-radius:999px;
-             border:1px solid var(--border);background:var(--accent);
-             color:#fff;cursor:pointer;">
-      View journey
-    </button>
-  </div>
-
-      <!-- You can later replace this with the real Day 1 UI -->
-          <div class="card" id="iy21Teaser" style="margin-bottom:20px;">
-      <h3>21 Days with Integral Yoga</h3>
-      <p style="font-size:0.9rem;line-height:1.5;">
-        A 21-day guided journey through selected readings from Sri Aurobindo and
-        The Mother, with simple reflections you can walk with in daily life.
+      <p>
+        This space is for those who feel drawn to Sri Aurobindo and The Mother and
+        would like some help bringing Integral Yoga into daily life, work and family.
       </p>
 
-      <button
-        id="btnIy21"
-        type="button"
-        style="margin-top:6px;padding:8px 14px;border-radius:999px;
-               border:1px solid var(--border);background:var(--accent);
-               color:#fff;cursor:pointer;"
-      >
-        View journey
-      </button>
-    </div>
-     <div class="card" id="day1Card" style="margin-top:20px">
-  <h3>Guided Reading — Day 1 of 21</h3>
+      <p>
+        You will find simple explanations, short readings from their writings, and
+        gentle prompts that you can walk with at your own pace.
+      </p>
 
-  <p style="margin:4px 0 0;color:var(--muted);font-size:0.9rem;">
-    Phase: <strong>Foundations</strong> · Theme: <strong>What is Integral Yoga?</strong>
-  </p>
-  <p style="margin:4px 0 12px;font-size:0.9rem;">
-    From <em>Sri Aurobindo — The Synthesis of Yoga</em>
-  </p>
+      <div style="margin-top:12px;font-size:0.9rem;">
+        <div style="font-weight:600;margin-bottom:4px;">Why this space exists</div>
+        <ul style="margin:0 0 0 18px;padding:0;line-height:1.5;">
+          <li>To offer clear, trustworthy explanations of Integral Yoga in simple words.</li>
+          <li>To give gentle daily support for sadhana amidst work and family life.</li>
+          <li>To help spouses, children and friends share a common language of the path.</li>
+        </ul>
+      </div>
 
-  <!-- Reading box -->
-  <div style="border-radius:8px;border:1px solid var(--border);padding:12px 14px;margin-top:4px;background:var(--card);">
-    <div style="font-weight:600;font-size:0.9rem;margin-bottom:6px;">Reading passage (to be filled)</div>
-    <p style="margin:0;font-size:0.9rem;line-height:1.6;">
-      [[Insert a short, authentic passage here explaining that Integral Yoga seeks to transform the whole being and life,
-      not to escape the world. This text will come from your Sri Aurobindo corpus.]]
-    </p>
-  </div>
+      <!-- Guided journeys card -->
+      <div class="card" id="iy21Teaser" style="margin-top:20px;padding:12px 14px;">
+        <h3 style="margin-top:0;">Guided journeys</h3>
 
-  <!-- Key idea -->
-  <div style="margin-top:12px;">
-    <div style="font-weight:600;font-size:0.95rem;margin-bottom:4px;">Key idea</div>
-    <p style="margin:0 0 8px;font-size:0.9rem;">
-      Integral Yoga is not about withdrawing from life, but about opening our whole nature — mind, heart, life-energy and
-      body — to the Divine so that life itself can be transformed.
-    </p>
-  </div>
+        <div style="font-weight:600;font-size:0.95rem;margin:4px 0 6px;">
+          21 Days with Integral Yoga
+        </div>
 
-  <!-- Reflection practices -->
-  <div style="margin-top:12px;">
-    <div style="font-weight:600;font-size:0.95rem;margin-bottom:4px;">Gentle reflection for today</div>
-    <ol style="margin:0 0 0 18px;font-size:0.9rem;line-height:1.6;">
-      <li>
-        During your day, notice one situation where you usually feel rushed, distracted, or pulled outward.
-        For a few seconds, inwardly remember that even this is part of your path, not separate from it.
-      </li>
-      <li>
-        If you feel comfortable, share this idea with your spouse, child, or a close friend:
-        that spirituality need not mean running away from life, but living it more consciously.
-      </li>
-    </ol>
-  </div>
-</div>
+        <p style="margin:0 0 6px;font-size:0.9rem;line-height:1.6;">
+          A 21-day journey through selected passages of Sri Aurobindo &amp; The Mother
+          to help you understand Integral Yoga and gently bring it into your daily life
+          and family.
+        </p>
+
+        <p style="margin:0 0 6px;font-size:0.85rem;color:var(--muted);">
+          For individuals, couples and families who are new to Integral Yoga or who
+          want a simple, shared rhythm for the house.
+        </p>
+
+        <ul style="margin:0 0 8px 18px;font-size:0.85rem;line-height:1.5;">
+          <li>Short daily readings from the works.</li>
+          <li>Key idea explained in simple language.</li>
+          <li>One or two gentle practices you can try alone or together.</li>
+        </ul>
+
+        <button
+          id="btnIy21"
+          type="button"
+          style="margin-top:4px;padding:8px 14px;border-radius:999px;
+                 border:1px solid var(--border);background:var(--accent);
+                 color:#fff;cursor:pointer;"
+        >
+          View journey
+        </button>
+      </div>
+
+      <!-- Guided Reading — Day 1 of 21 -->
+      <div class="card" id="day1Card" style="margin-top:20px;">
+        <h3>Guided Reading — Day 1 of 21</h3>
+
+        <p style="margin:4px 0 0;color:var(--muted);font-size:0.9rem;">
+          Phase: <strong>Foundations</strong> · Theme: <strong>What is Integral Yoga?</strong>
+        </p>
+        <p style="margin:4px 0 12px;font-size:0.9rem;">
+          From <em>Sri Aurobindo — The Synthesis of Yoga</em>
+        </p>
+
+        <!-- Reading box -->
+        <div
+          style="border-radius:8px;border:1px solid var(--border);
+                 padding:12px 14px;margin-top:4px;background:var(--card);"
+        >
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:6px;">
+            Reading passage (to be filled)
+          </div>
+          <p style="margin:0;font-size:0.9rem;line-height:1.6;">
+            [[Insert a short, authentic passage here explaining that Integral Yoga
+            seeks to transform the whole being and life, not to escape the world.
+            This text will come from your Sri Aurobindo corpus.]]
+          </p>
+        </div>
+
+        <!-- Key idea -->
+        <div style="margin-top:12px;">
+          <div style="font-weight:600;font-size:0.95rem;margin-bottom:4px;">
+            Key idea
+          </div>
+          <p style="margin:0 0 8px;font-size:0.9rem;">
+            Integral Yoga is not about withdrawing from life, but about opening our
+            whole nature — mind, heart, life-energy and body — to the Divine so that
+            life itself can be transformed.
+          </p>
+        </div>
+
+        <!-- Reflection practices -->
+        <div style="margin-top:12px;">
+          <div style="font-weight:600;font-size:0.95rem;margin-bottom:4px;">
+            Gentle reflection for today
+          </div>
+          <ol style="margin:0 0 0 18px;font-size:0.9rem;line-height:1.6;">
+            <li>
+              During your day, notice one situation where you usually feel rushed,
+              distracted, or pulled outward. For a few seconds, inwardly remember
+              that even this is part of your path, not separate from it.
+            </li>
+            <li>
+              If you feel comfortable, share this idea with your spouse, child, or
+              a close friend: that spirituality need not mean running away from life,
+              but living it more consciously.
+            </li>
+          </ol>
+        </div>
+      </div>
 
       <hr style="margin:24px 0;border:none;border-top:1px solid #ddd;" />
 
-      <h2>Scoped Samvad Q&amp;A</h2>
-      <p style="margin:4px 0 12px;color:var(--muted);font-size:0.9rem;">
-        Ask about Sri Aurobindo, The Mother, and Integral Yoga. Choose <strong>Simple</strong> for a short explanation or
-        <strong>In-depth</strong> for a deeper dive.
+      <!-- Q&A wrapper so app.js can hook into it -->
+      <section id="qaSection">
+        <h2>Scoped Samvad Q&amp;A</h2>
+        <p style="margin:4px 0 12px;color:var(--muted);font-size:0.9rem;">
+          Ask about Sri Aurobindo, The Mother, and Integral Yoga. Choose
+          <strong>Simple</strong> for a short explanation or
+          <strong>In-depth</strong> for a deeper dive.
+        </p>
+
+        <!-- Q&A block -->
+        <div class="card" style="margin-top:12px;">
+          <label for="qaInput" style="display:block;margin-bottom:8px;">
+            Ask a question about Sri Aurobindo &amp; The Mother
+          </label>
+
+          <textarea
+            id="qaInput"
+            rows="4"
+            style="width:100%;padding:10px;border-radius:8px;
+                   border:1px solid var(--border);background:var(--card);
+                   color:var(--text);"
+          ></textarea>
+
+          <div style="margin-top:8px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+            <div>
+              <label><input type="radio" name="depth" value="plain" checked /> Simple</label>
+              <label style="margin-left:8px;">
+                <input type="radio" name="depth" value="scholar" /> In-depth
+              </label>
+            </div>
+
+            <button
+              id="btnAsk"
+              style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);
+                     background:var(--card);color:var(--text);cursor:pointer;"
+            >
+              Ask
+            </button>
+
+            <span id="qaStatus" style="color:var(--muted);"></span>
+          </div>
+
+          <div
+            id="qaOutput"
+            style="margin-top:12px;white-space:pre-wrap;line-height:1.55;"
+          ></div>
+
+          <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+            <button
+              id="btnCopyAnswer"
+              style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);
+                     background:var(--card);color:var(--muted);font-size:0.85rem;
+                     cursor:pointer;"
+            >
+              Copy answer
+            </button>
+          </div>
+
+          <div
+            id="qaSources"
+            style="margin-top:8px;color:var(--muted);font-size:0.95em;"
+          ></div>
+
+          <div
+            id="qaHistoryWrap"
+            style="margin-top:16px;padding:12px;border-radius:8px;
+                   border:1px solid var(--border);background:var(--card);"
+          >
+            <div style="font-weight:600;margin-bottom:8px;">
+              Your recent questions
+            </div>
+            <div
+              id="qaHistory"
+              style="font-size:0.9rem;color:var(--muted);"
+            >
+              <!-- Filled by app.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Journey page -->
+    <section id="iy-21" class="card" style="display:none;">
+      <h2>21 Days with Integral Yoga</h2>
+
+      <p>
+        This journey gently introduces Integral Yoga through short daily readings
+        from Sri Aurobindo and The Mother, along with simple reflections you can
+        live with during the day.
       </p>
 
-      <!-- Q&A block moved here from the old #qa route -->
-      <div class="card" style="margin-top:12px">
-        <label for="qaInput" style="display:block;margin-bottom:8px">
-          Ask a question about Sri Aurobindo &amp; The Mother
-        </label>
-        <textarea
-          id="qaInput"
-          rows="4"
-          style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text)"
-        ></textarea>
+      <p style="font-size:0.9rem;color:var(--muted);margin-bottom:10px;">
+        You can walk this alone or together as a family, at your own pace. There
+        is no pressure to “finish” — only to come back sincerely.
+      </p>
 
-        <div style="margin-top:8px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-          <div>
-            <label><input type="radio" name="depth" value="plain" checked /> Simple</label>
-            <label style="margin-left:8px"><input type="radio" name="depth" value="scholar" /> In-depth</label>
-          </div>
-          <button
-            id="btnAsk"
-            style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer"
-          >
-            Ask
-          </button>
-          <span id="qaStatus" style="color:var(--muted)"></span>
-        </div>
+      <div style="font-size:0.9rem;margin-bottom:12px;">
+        <strong>Status:</strong> You are viewing <span>Day 1 of 21</span>
+        <span style="color:var(--muted);"> · Phase: Foundations</span>
+      </div>
 
+      <div id="iyDayPanel" class="card" style="margin-top:8px;padding:12px 14px;">
         <div
-          id="qaOutput"
-          style="margin-top:12px;white-space:pre-wrap;line-height:1.55"
-        ></div>
-
-        <div style="margin-top:8px;display:flex;justify-content:flex-end">
-          <button
-            id="btnCopyAnswer"
-            style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:0.85rem;cursor:pointer"
-          >
-            Copy answer
-          </button>
-        </div>
-
-        <div
-          id="qaSources"
-          style="margin-top:8px;color:var(--muted);font-size:0.95em"
-        ></div>
-
-        <div
-          id="qaHistoryWrap"
-          style="margin-top:16px;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--card);"
+          id="iyDayHeading"
+          style="font-weight:600;font-size:0.95rem;margin-bottom:4px;"
         >
-          <div style="font-weight:600;margin-bottom:8px;">Your recent questions</div>
-          <div
-            id="qaHistory"
-            style="font-size:0.9rem;color:var(--muted);"
-          >
-            <!-- Filled by app.js -->
+          Day 1 · Foundations · [Title]
+        </div>
+
+        <div
+          id="iyDayMeta"
+          style="font-size:0.85rem;color:var(--muted);margin-bottom:8px;"
+        >
+          Work: <span id="iyDayWork">[Work]</span>
+          · Theme: <span id="iyDayTheme">[Theme]</span>
+        </div>
+
+        <div
+          id="iyDayExcerpt"
+          style="font-size:0.9rem;line-height:1.6;border-left:3px solid var(--border);
+                 padding-left:10px;margin-bottom:10px;"
+        >
+          [[Day 1 reading excerpt will appear here from the corpus.]]
+        </div>
+
+        <div style="font-size:0.87rem;">
+          <div style="font-weight:600;margin-bottom:4px;">Gentle reflection</div>
+          <div id="iyDayReflection">
+            [[Reflection hint for the day will appear here.]]
           </div>
         </div>
       </div>
+
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
+        <button
+          id="btnIyBack"
+          type="button"
+          style="padding:8px 12px;border-radius:999px;border:1px solid var(--border);
+                 background:transparent;color:var(--text);cursor:pointer;"
+        >
+          ← Back to Sri Aurobindo Home
+        </button>
+
+        <button
+          id="btnIyComplete"
+          type="button"
+          style="padding:8px 12px;border-radius:999px;border:1px solid var(--border);
+                 background:var(--accent);color:#fff;cursor:pointer;"
+        >
+          Mark Day 1 complete (placeholder)
+        </button>
+      </div>
+
+      <p style="margin-top:12px;font-size:0.85rem;color:var(--muted);">
+        Have a question while you read? You can always return to the Sri
+        Aurobindo home page and use the Samvad Q&amp;A there.
+      </p>
     </section>
-       <section id="iy-21" class="card" style="display:none;">
-    <h2>21 Days with Integral Yoga</h2>
-
-    <p>
-      This journey gently introduces Integral Yoga through short daily readings
-      from Sri Aurobindo and The Mother, along with simple reflections you can
-      live with during the day.
-    </p>
-
-    <p style="font-size:0.9rem;color:var(--muted);margin-bottom:10px;">
-      You can walk this alone or together as a family, at your own pace. There
-      is no pressure to “finish” — only to come back sincerely.
-    </p>
-
-    <div style="font-size:0.9rem;margin-bottom:12px;">
-      <strong>Status:</strong> You are viewing <span>Day 1 of 21</span>
-      <span style="color:var(--muted);"> · Phase: Foundations</span>
-    </div>
-
-    <div id="iyDayPanel" class="card" style="margin-top:8px;padding:12px 14px;">
-      <div
-        id="iyDayHeading"
-        style="font-weight:600;font-size:0.95rem;margin-bottom:4px;"
-      >
-        Day 1 · Foundations · [Title]
-      </div>
-
-      <div
-        id="iyDayMeta"
-        style="font-size:0.85rem;color:var(--muted);margin-bottom:8px;"
-      >
-        Work: <span id="iyDayWork">[Work]</span>
-        · Theme: <span id="iyDayTheme">[Theme]</span>
-      </div>
-
-      <div
-        id="iyDayExcerpt"
-        style="font-size:0.9rem;line-height:1.6;border-left:3px solid var(--border);padding-left:10px;margin-bottom:10px;"
-      >
-        [[Day 1 reading excerpt will appear here from the corpus.]]
-      </div>
-
-      <div style="font-size:0.87rem;">
-        <div style="font-weight:600;margin-bottom:4px;">Gentle reflection</div>
-        <div id="iyDayReflection">
-          [[Reflection hint for the day will appear here.]]
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
-      <button
-        id="btnIyBack"
-        type="button"
-        style="padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;"
-      >
-        ← Back to Sri Aurobindo Home
-      </button>
-
-      <button
-        id="btnIyComplete"
-        type="button"
-        style="padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--accent);color:#fff;cursor:pointer;"
-      >
-        Mark Day 1 complete (placeholder)
-      </button>
-    </div>
-
-    <p style="margin-top:12px;font-size:0.85rem;color:var(--muted);">
-      Have a question while you read? You can always return to the Sri
-      Aurobindo home page and use the Samvad Q&amp;A there.
-    </p>
-  </section>
-
-    <!-- CHANGED: old <section id="qa">…</section> has been removed entirely -->
   </main>
 
-  <footer class="ftr"><div class="wrap">© Atma Vani — Samvad (MVP)</div></footer>
-
-  <!-- Paywall Modal -->
-  <div id="paywall" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6);">
-    <div style="background:#1e2233; color:#e9eef7; max-width:520px; margin:10vh auto; padding:20px; border-radius:12px; border:1px solid #23273a">
-      <h3 style="margin-top:0">Trial ended — Upgrade to continue</h3>
-      <p>You’ve enjoyed full access to Atma Samvad during your 3-day trial. To continue your journey with Sri Aurobindo &amp; The Mother, please upgrade.</p>
-      <div style="display:flex; gap:12px; margin-top:12px">
-        <button id="btnUpgrade" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#2a3250; color:#e9eef7; cursor:pointer">
-          Upgrade (placeholder)
-        </button>
-        <button id="btnClosePaywall" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#151824; color:#e9eef7; cursor:pointer">
-          Not now
-        </button>
-      </div>
+  <footer>
+    <div class="wrap">
+      © Atma Vani — Samvad (MVP)
     </div>
-  </div>
+  </footer>
 
-  <!-- Firebase SDKs + expose -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc, serverTimestamp }
-      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBG9gtjR53FzUIBG7nk1nZJdHHinDLX2VY",
-      authDomain: "atma-vani-prod.firebaseapp.com",
-      projectId: "atma-vani-prod",
-      appId: "1:1043273819491:web:48ac7fac567392bb2bdf56",
-      storageBucket: "atma-vani-prod.firebasestorage.app"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
-
-    window.__samvad = {
-      auth, db, provider, signInWithPopup, signOut, onAuthStateChanged,
-      doc, setDoc, serverTimestamp
-    };
-  </script>
-
-  <!-- App JS -->
-  <script src="/app.js" defer></script>
+  <script type="module" src="/app.js"></script>
 </body>
 </html>
