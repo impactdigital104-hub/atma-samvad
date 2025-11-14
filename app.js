@@ -756,3 +756,62 @@ const integralYogaJourneyDays = [
     }
   });
 })();
+// --- Guided journey navigation: Sri Aurobindo <-> 21 Days with Integral Yoga ---
+(function setupIyNavigation() {
+  const secAuro = document.getElementById('aurobindo');
+  const secIy = document.getElementById('iy-21');
+  const btnView = document.getElementById('btnIy21');
+  const btnBack = document.getElementById('btnIyBack');
+  const btnComplete = document.getElementById('btnIyComplete');
+
+  if (!secAuro || !secIy) return;
+
+  function showAuro() {
+    secAuro.style.display = 'block';
+    secIy.style.display = 'none';
+    if (location.hash !== '#aurobindo') {
+      history.replaceState(null, '', '#aurobindo');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function showIy() {
+    secAuro.style.display = 'none';
+    secIy.style.display = 'block';
+    if (location.hash !== '#iy-21') {
+      history.replaceState(null, '', '#iy-21');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  if (btnView) {
+    btnView.addEventListener('click', (e) => {
+      e.preventDefault();
+      showIy();
+    });
+  }
+
+  if (btnBack) {
+    btnBack.addEventListener('click', (e) => {
+      e.preventDefault();
+      showAuro();
+    });
+  }
+
+  if (btnComplete) {
+    btnComplete.addEventListener('click', () => {
+      alert('Mark Day 1 complete → placeholder. Later this will store progress.');
+    });
+  }
+
+  function handleHash() {
+    if (location.hash === '#iy-21') {
+      showIy();
+    } else {
+      showAuro();
+    }
+  }
+
+  window.addEventListener('hashchange', handleHash);
+  handleHash(); // run once on load
+})();
