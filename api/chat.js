@@ -1,5 +1,5 @@
 // FILE: api/chat.js
-// Real OpenAI-backed Q&A for Atma Samvad — Sri Aurobindo & The Mother.
+// Real OpenAI-backed Q&A + Day-Reading for Atma Samvad — Sri Aurobindo & The Mother.
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -22,38 +22,34 @@ module.exports = async (req, res) => {
       body = {};
     }
 
-    const { question = "", depth = "plain", mode, guru, action } = body;
-
-    // Envelope validation: keep exactly as before
-    if (mode !== "samvad" || guru !== "aurobindo" || action !== "qa") {
-      return res.status(400).json({
-        error: "Bad request envelope",
-        got: { mode, guru, action }
-      });
-    }
-
-    if (!question.trim()) {
-      return res.status(400).json({ error: "Question required" });
-    }
+    const { mode, guru, action } = body;
 
     if (!OPENAI_API_KEY) {
       console.error("OPENAI_API_KEY is not set in environment variables");
       return res
         .status(500)
-        .json({ error: "Server misconfigured: missing OpenAI API key" });
+        .json({ error: "Server misconfigured: missing OPENAI_API_KEY" });
     }
 
-    // Style instruction based on depth (plain vs scholar)
-    const styleInstruction =
-      depth === "scholar"
-        ? `
+    // ---- BRANCH 1: Existing Q&A mode (unchanged contract) -------------------
+    if (mode === "samvad" && guru === "aurobindo" && action === "qa") {
+      const { question = "", depth = "plain" } = body;
+
+      if (!question.trim()) {
+        return res.status(400).json({ error: "Question required" });
+      }
+
+      // Style instruction based on depth (plain vs scholar)
+      const styleInstruction =
+        depth === "scholar"
+          ? `
 You are answering in SCHOLAR mode.
 - Go a bit deeper into Sri Aurobindo's and The Mother's concepts.
 - When helpful, mention key ideas like Integral Yoga, the psychic being, transformation of consciousness, evolution, supramental, etc.
 - Where fitting, refer to specific works (for example: The Life Divine, The Synthesis of Yoga, Savitri, Letters on Yoga, or The Mother's Prayers and Meditations), but do NOT invent exact page numbers or long quotations.
 - Use clear, structured paragraphs and define Sanskrit terms briefly when you use them.
 `
-        : `
+          : `
 You are answering in PLAIN mode.
 - Speak simply and warmly, like a friendly guide.
 - Prefer short paragraphs (2–4 lines).
@@ -61,8 +57,8 @@ You are answering in PLAIN mode.
 - Focus on giving a practical, heart-centred explanation that an educated but non-specialist reader can follow.
 `;
 
-    // Core system prompt: keep scope narrow and safe
-    const baseSystemPrompt = `
+      // Core system prompt: keep scope narrow and safe
+      const baseSystemPrompt = `
 You are “Atma Samvad — Sri Aurobindo & The Mother”, a focused spiritual guide for sincere seekers.
 
 Your role
@@ -143,50 +139,176 @@ Overall answering pattern
 5. End with the “Sources” section as specified above.
 `.trim();
 
-    // Combine base prompt with depth-specific instruction
-    const systemPrompt = `${baseSystemPrompt}\n\n${styleInstruction}`;
+      // Combine base prompt with depth-specific instruction
+      const systemPrompt = `${baseSystemPrompt}\n\n${styleInstruction}`;
 
-    // Build payload for OpenAI Chat Completions
-    const payload = {
-      model: "gpt-4.1-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: question }
-      ],
-      temperature: 0.4,
-      max_tokens: 900
-    };
+      // Build payload for OpenAI Chat Completions (Q&A)
+      const payload = {
+        model: "gpt-4.1-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: question }
+        ],
+        temperature: 0.4,
+        max_tokens: 900
+      };
 
-    // Call OpenAI
-    const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`
-      },
-      body: JSON.stringify(payload)
-    });
+      const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify(payload)
+      });
 
-    if (!apiRes.ok) {
-      const errorText = await apiRes.text();
-      console.error("OpenAI API error:", apiRes.status, errorText);
-      return res.status(500).json({ error: "Upstream model error" });
+      if (!apiRes.ok) {
+        const errorText = await apiRes.text();
+        console.error("OpenAI API error (Q&A):", apiRes.status, errorText);
+        return res.status(500).json({ error: "Upstream model error" });
+      }
+
+      const data = await apiRes.json();
+      const rawAnswer = data?.choices?.[0]?.message?.content || "";
+      const answer = (rawAnswer || "").trim();
+
+      // Static sources list (for now)
+      const sources = [
+        "Sri Aurobindo — The Life Divine",
+        "Sri Aurobindo — The Synthesis of Yoga",
+        "Sri Aurobindo — Savitri",
+        "The Mother — Prayers and Meditations"
+      ];
+
+      return res.status(200).json({ answer, sources });
     }
 
-    const data = await apiRes.json();
-    const rawAnswer = data?.choices?.[0]?.message?.content || "";
-    const answer = (rawAnswer || "").trim();
+    // ---- BRANCH 2: New Day-Reading mode ------------------------------------
+    if (mode === "dayReading") {
+      const {
+        guruId = "sri-aurobindo",
+        day,
+        phase = "",
+        theme = "",
+        workHint = "",
+        minWords = 60,
+        maxWords = 120
+      } = body;
 
-    // For now, keep a simple, honest sources list.
-    // Later, when we add a real text index / RAG, we can make this dynamic.
-    const sources = [
-      "Sri Aurobindo — The Life Divine",
-      "Sri Aurobindo — The Synthesis of Yoga",
-      "Sri Aurobindo — Savitri",
-      "The Mother — Prayers and Meditations"
-    ];
+      if (!day || !Number.isInteger(day)) {
+        return res.status(400).json({ error: "Valid 'day' (integer) is required" });
+      }
 
-    return res.status(200).json({ answer, sources });
+      if (!theme || !theme.trim()) {
+        return res.status(400).json({ error: "A 'theme' string is required" });
+      }
+
+      const safeMin = Math.max(30, Number(minWords) || 60);
+      const safeMax = Math.max(safeMin + 10, Number(maxWords) || 120);
+
+      const dayReadingSystemPrompt = `
+You are “Atma Samvad — Sri Aurobindo & The Mother”, generating a SINGLE short reading passage for a 21-day guided journey in Integral Yoga.
+
+Your task in this mode:
+- Pick ONE short, representative passage from the works of Sri Aurobindo or The Mother that fits the given theme.
+- Prefer a direct quote or very close paraphrase, not a long summary.
+- Target length: between ${safeMin} and ${safeMax} words.
+- Do NOT exceed ${safeMax + 20} words under any circumstance.
+
+Priorities:
+- Faithfulness to the actual thought and tone of Sri Aurobindo / The Mother.
+- Clarity and accessibility for a sincere seeker who may be new to Integral Yoga.
+- If possible, choose passages from the suggested work hint.
+
+Output format:
+- You MUST return a single JSON object ONLY, no extra text, in this exact shape:
+
+  {
+    "text": "…the 60–120 word passage…",
+    "work": "…book or collection name…",
+    "section": "…chapter / canto / talk / context, if known, else an empty string…"
+  }
+
+Rules:
+- Do NOT include any commentary or explanation in "text" — only the passage itself, as a flowing paragraph.
+- Do NOT invent precise page numbers.
+- If you are not sure of the exact section title, use a reasonable high-level label (e.g. "Early chapters on the aim of the yoga").
+`.trim();
+
+      const userDescription = `
+Please select one short passage for day ${day} of a 21-day Integral Yoga journey.
+
+Guru ID: ${guruId}
+Phase: ${phase || "n/a"}
+Theme: ${theme}
+Work hint: ${workHint || "any suitable work of Sri Aurobindo or The Mother"}
+
+Remember:
+- Length between ${safeMin} and ${safeMax} words.
+- Output ONLY a JSON object with keys: text, work, section.
+`.trim();
+
+      const payload = {
+        model: "gpt-4.1-mini",
+        messages: [
+          { role: "system", content: dayReadingSystemPrompt },
+          { role: "user", content: userDescription }
+        ],
+        temperature: 0.3,
+        max_tokens: 500
+      };
+
+      const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!apiRes.ok) {
+        const errorText = await apiRes.text();
+        console.error("OpenAI API error (Day-Reading):", apiRes.status, errorText);
+        return res.status(500).json({ error: "Upstream model error (dayReading)" });
+      }
+
+      const data = await apiRes.json();
+      const raw = (data?.choices?.[0]?.message?.content || "").trim();
+
+      let passageObj;
+      try {
+        passageObj = JSON.parse(raw);
+      } catch {
+        // Fallback: if model didn't give clean JSON, wrap as text-only
+        passageObj = {
+          text: raw,
+          work: "Sri Aurobindo / The Mother",
+          section: ""
+        };
+      }
+
+      const passage = {
+        text: String(passageObj.text || "").trim(),
+        work: String(passageObj.work || "Sri Aurobindo / The Mother").trim(),
+        section: String(passageObj.section || "").trim(),
+        // Placeholder until we wire a real vector store:
+        sourceId: null
+      };
+
+      return res.status(200).json({
+        ok: true,
+        day,
+        guruId,
+        passage
+      });
+    }
+
+    // ---- Fallback: unknown envelope ----------------------------------------
+    return res.status(400).json({
+      error: "Bad request envelope",
+      got: { mode, guru, action }
+    });
   } catch (e) {
     console.error("api/chat error:", e);
     return res.status(500).json({ error: "Internal error" });
