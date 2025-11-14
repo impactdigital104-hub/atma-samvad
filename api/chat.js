@@ -3,6 +3,9 @@
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
+// This is your Sri Aurobindo vector store (The Synthesis of Yoga + Essays on the Gita, for now).
+const SRI_AUROBINDO_VECTOR_STORE_ID = "vs_69171e7134a881918eec0282edbc65ab";
+
 module.exports = async (req, res) => {
   try {
     // Only allow POST
@@ -183,7 +186,7 @@ Overall answering pattern
       return res.status(200).json({ answer, sources });
     }
 
-    // ---- BRANCH 2: New Day-Reading mode ------------------------------------
+    // ---- BRANCH 2: New Day-Reading mode (with vector store) -----------------
     if (mode === "dayReading") {
       const {
         guruId = "sri-aurobindo",
@@ -206,25 +209,29 @@ Overall answering pattern
       const safeMin = Math.max(30, Number(minWords) || 60);
       const safeMax = Math.max(safeMin + 10, Number(maxWords) || 120);
 
-      const dayReadingSystemPrompt = `
+      // System instructions for Responses API + file_search
+      const dayReadingInstructions = `
 You are “Atma Samvad — Sri Aurobindo & The Mother”, generating a SINGLE short reading passage for a 21-day guided journey in Integral Yoga.
 
+You have access to a file_search tool connected to a vector store that contains works of Sri Aurobindo and The Mother (including "The Synthesis of Yoga" and "Essays on the Gita").
+
 Your task in this mode:
-- Pick ONE short, representative passage from the works of Sri Aurobindo or The Mother that fits the given theme.
-- Prefer a direct quote or very close paraphrase, not a long summary.
+- Use file_search to ground yourself in the actual texts from this vector store.
+- Pick ONE short, representative passage that fits the given theme.
+- Prefer a direct quote or a very close paraphrase based on the retrieved text.
 - Target length: between ${safeMin} and ${safeMax} words.
 - Do NOT exceed ${safeMax + 20} words under any circumstance.
 
 Priorities:
 - Faithfulness to the actual thought and tone of Sri Aurobindo / The Mother.
 - Clarity and accessibility for a sincere seeker who may be new to Integral Yoga.
-- If possible, choose passages from the suggested work hint.
+- If possible, choose passages from the suggested work hint (for example, "The Synthesis of Yoga") but it is okay to draw from the other uploaded works when they fit the theme.
 
 Output format:
 - You MUST return a single JSON object ONLY, no extra text, in this exact shape:
 
   {
-    "text": "…the 60–120 word passage…",
+    "text": "…the ${safeMin}-${safeMax} word passage…",
     "work": "…book or collection name…",
     "section": "…chapter / canto / talk / context, if known, else an empty string…"
   }
@@ -248,17 +255,22 @@ Remember:
 - Output ONLY a JSON object with keys: text, work, section.
 `.trim();
 
+      // Build payload for Responses API with file_search tool
       const payload = {
         model: "gpt-4.1-mini",
-        messages: [
-          { role: "system", content: dayReadingSystemPrompt },
-          { role: "user", content: userDescription }
+        instructions: dayReadingInstructions,
+        input: userDescription,
+        tools: [
+          {
+            type: "file_search",
+            vector_store_ids: [SRI_AUROBINDO_VECTOR_STORE_ID]
+          }
         ],
         temperature: 0.3,
         max_tokens: 500
       };
 
-      const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      const apiRes = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -274,7 +286,7 @@ Remember:
       }
 
       const data = await apiRes.json();
-      const raw = (data?.choices?.[0]?.message?.content || "").trim();
+      const raw = (data?.output_text || "").trim();
 
       let passageObj;
       try {
@@ -292,7 +304,7 @@ Remember:
         text: String(passageObj.text || "").trim(),
         work: String(passageObj.work || "Sri Aurobindo / The Mother").trim(),
         section: String(passageObj.section || "").trim(),
-        // Placeholder until we wire a real vector store:
+        // Placeholder: we are not yet surfacing the low-level file/chunk ID.
         sourceId: null
       };
 
