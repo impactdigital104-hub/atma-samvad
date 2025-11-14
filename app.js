@@ -306,7 +306,61 @@ async function loadDayReadingForIntegralYoga(dayMeta) {
       "We had trouble fetching today's reading. Please check your connection and refresh.";
   }
 }
+// === Integral Yoga journey rendering state ===
+let currentIyDayIndex = 0;
 
+// Render a given day (0-based index) into the 21-day card
+function renderIyDayByIndex(index) {
+  if (
+    typeof integralYogaJourneyDays === "undefined" ||
+    !Array.isArray(integralYogaJourneyDays) ||
+    !integralYogaJourneyDays.length
+  ) {
+    return;
+  }
+
+  if (index < 0 || index >= integralYogaJourneyDays.length) {
+    return;
+  }
+
+  currentIyDayIndex = index;
+  const day = integralYogaJourneyDays[index];
+
+  const elHeading = document.getElementById("iyDayHeading");
+  const elWork = document.getElementById("iyDayWork");
+  const elTheme = document.getElementById("iyDayTheme");
+  const elExcerpt = document.getElementById("iyDayExcerpt");
+  const elReflection = document.getElementById("iyDayReflection");
+  const elStatus = document.getElementById("iyDayStatus");
+  const btnComplete = document.getElementById("btnIyComplete");
+
+  if (elHeading) {
+    elHeading.textContent = `Day ${day.day} · ${day.phase} · ${day.title}`;
+  }
+  if (elWork) {
+    elWork.textContent = day.work;
+  }
+  if (elTheme) {
+    elTheme.textContent = day.theme;
+  }
+  if (elReflection && day.reflectionHint) {
+    elReflection.textContent = day.reflectionHint;
+  }
+  if (elStatus) {
+    elStatus.textContent = `You are viewing Day ${day.day} of 21 · Phase: ${day.phase}`;
+  }
+  if (btnComplete) {
+    btnComplete.textContent = `Mark Day ${day.day} complete (placeholder)`;
+  }
+
+  if (elExcerpt) {
+    elExcerpt.textContent = "Finding a passage for you...";
+  }
+
+  if (typeof loadDayReadingForIntegralYoga === "function") {
+    loadDayReadingForIntegralYoga(day);
+  }
+}
 // --- Basic router (hash-based) ---
 (function router(){
   function route(){
@@ -827,43 +881,18 @@ async function loadDayReadingForIntegralYoga(dayMeta) {
     }
   });
 })();
-
-// --- 21 Days: render Day 1 on the journey page ---
-(function setupIyDay1() {
-  if (typeof integralYogaJourneyDays === "undefined") return;
-
-  const day1 = integralYogaJourneyDays.find((d) => d.day === 1);
-  if (!day1) return;
-
-  const elHeading = document.getElementById("iyDayHeading");
-  const elWork = document.getElementById("iyDayWork");
-  const elTheme = document.getElementById("iyDayTheme");
-  const elExcerpt = document.getElementById("iyDayExcerpt");
-  const elReflection = document.getElementById("iyDayReflection");
-
-  if (elHeading) {
-    elHeading.textContent = `Day ${day1.day} · ${day1.phase} · ${day1.title}`;
+// --- 21 Days: initialise journey (start on Day 1) ---
+(function setupIyInitialDay() {
+  if (
+    typeof integralYogaJourneyDays === "undefined" ||
+    !Array.isArray(integralYogaJourneyDays) ||
+    !integralYogaJourneyDays.length
+  ) {
+    return;
   }
-  if (elWork) {
-    elWork.textContent = day1.work;
-  }
-  if (elTheme) {
-    elTheme.textContent = day1.theme;
-  }
-  // UPDATED: we no longer show the hard-coded placeholder; we start with a loading message.
-  if (elExcerpt) {
-    elExcerpt.textContent = "Finding a passage for you...";
-  }
-  if (elReflection && day1.reflectionHint) {
-    elReflection.textContent = day1.reflectionHint;
-  }
-
-  // NEW: actually fetch the passage for Day 1 from the backend
-  if (typeof loadDayReadingForIntegralYoga === "function") {
-    loadDayReadingForIntegralYoga(day1);
-  }
+  // Start on the first entry (Day 1)
+  renderIyDayByIndex(0);
 })();
-
 // --- Guided journey navigation: Sri Aurobindo <-> 21 Days with Integral Yoga ---
 (function setupIyNavigation() {
   const secAuro = document.getElementById('aurobindo');
@@ -871,6 +900,8 @@ async function loadDayReadingForIntegralYoga(dayMeta) {
   const btnView = document.getElementById('btnIy21');
   const btnBack = document.getElementById('btnIyBack');
   const btnComplete = document.getElementById('btnIyComplete');
+  const btnPrev = document.getElementById('btnIyPrevDay');
+  const btnNext = document.getElementById('btnIyNextDay');
 
   if (!secAuro || !secIy) return;
 
@@ -888,6 +919,10 @@ async function loadDayReadingForIntegralYoga(dayMeta) {
     secIy.style.display = 'block';
     if (location.hash !== '#iy-21') {
       history.replaceState(null, '', '#iy-21');
+    }
+    // Ensure the current day is rendered whenever we enter the journey page
+    if (typeof renderIyDayByIndex === 'function') {
+      renderIyDayByIndex(currentIyDayIndex);
     }
     window.scrollTo(0, 0);
   }
@@ -908,7 +943,25 @@ async function loadDayReadingForIntegralYoga(dayMeta) {
 
   if (btnComplete) {
     btnComplete.addEventListener('click', () => {
-      alert('Mark Day 1 complete → placeholder. Later this will store progress.');
+      const day = integralYogaJourneyDays[currentIyDayIndex];
+      alert(`Mark Day ${day.day} complete → placeholder. Later this will store progress.`);
+    });
+  }
+
+  // NEW: Previous / Next day navigation
+  if (btnPrev) {
+    btnPrev.addEventListener('click', () => {
+      if (currentIyDayIndex > 0) {
+        renderIyDayByIndex(currentIyDayIndex - 1);
+      }
+    });
+  }
+
+  if (btnNext) {
+    btnNext.addEventListener('click', () => {
+      if (currentIyDayIndex < integralYogaJourneyDays.length - 1) {
+        renderIyDayByIndex(currentIyDayIndex + 1);
+      }
     });
   }
 
@@ -923,3 +976,4 @@ async function loadDayReadingForIntegralYoga(dayMeta) {
   window.addEventListener('hashchange', handleHash);
   handleHash(); // run once on load
 })();
+
