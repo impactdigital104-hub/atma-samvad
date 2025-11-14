@@ -250,9 +250,13 @@ async function loadDayReadingForIntegralYoga(dayMeta) {
   // Show a small loading message while we fetch
   elExcerpt.textContent = "Finding a passage for you...";
 
-  const payload = {
-    mode: "dayReading",
-    guruId: "sri-aurobindo",
+    const payload = {
+    // Envelope expected by the backend
+    mode: "samvad",
+    guru: "aurobindo",
+    action: "dayReading",
+
+    // Day-reading parameters
     day: dayMeta.day,
     phase: dayMeta.phase || "",
     theme: dayMeta.theme || "",
