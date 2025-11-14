@@ -756,6 +756,35 @@ const integralYogaJourneyDays = [
     }
   });
 })();
+// --- 21 Days: render Day 1 on the journey page ---
+(function setupIyDay1() {
+  if (typeof integralYogaJourneyDays === "undefined") return;
+
+  const day1 = integralYogaJourneyDays.find((d) => d.day === 1);
+  if (!day1) return;
+
+  const elHeading = document.getElementById("iyDayHeading");
+  const elWork = document.getElementById("iyDayWork");
+  const elTheme = document.getElementById("iyDayTheme");
+  const elExcerpt = document.getElementById("iyDayExcerpt");
+  const elReflection = document.getElementById("iyDayReflection");
+
+  if (elHeading) {
+    elHeading.textContent = `Day ${day1.day} · ${day1.phase} · ${day1.title}`;
+  }
+  if (elWork) {
+    elWork.textContent = day1.work;
+  }
+  if (elTheme) {
+    elTheme.textContent = day1.theme;
+  }
+  if (elExcerpt && day1.excerpt) {
+    elExcerpt.textContent = day1.excerpt;
+  }
+  if (elReflection && day1.reflectionHint) {
+    elReflection.textContent = day1.reflectionHint;
+  }
+})();
 // --- Guided journey navigation: Sri Aurobindo <-> 21 Days with Integral Yoga ---
 (function setupIyNavigation() {
   const secAuro = document.getElementById('aurobindo');
