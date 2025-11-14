@@ -8,7 +8,10 @@ const integralYogaJourneyDays = [
     phase: "Foundations",
     title: "What is Integral Yoga?",
     work: "Sri Aurobindo — The Synthesis of Yoga",
-    theme: "Aim of the yoga",
+    // NEW: this helps the backend aim at the right part of the book
+    workHint: "The Synthesis of Yoga; early chapters on the aim of the yoga",
+    // NEW: theme updated to match your design phrase
+    theme: "What is Integral Yoga? Not escape from life, but transformation of life.",
     excerpt:
       "[[Insert authentic passage explaining the aim of Integral Yoga — that it seeks to transform the whole being and life, not to escape the world.]]",
     reflectionHint:
@@ -235,6 +238,70 @@ const integralYogaJourneyDays = [
       "Take a moment to imagine that your sincere efforts, however small, are part of a much larger movement of consciousness on earth."
   }
 ];
+
+// === NEW: Day-reading helper for Integral Yoga journey ======================
+async function loadDayReadingForIntegralYoga(dayMeta) {
+  const elExcerpt = document.getElementById("iyDayExcerpt");
+  if (!elExcerpt) {
+    console.warn("iyDayExcerpt element not found in DOM");
+    return;
+  }
+
+  // Show a small loading message while we fetch
+  elExcerpt.textContent = "Finding a passage for you...";
+
+  const payload = {
+    mode: "dayReading",
+    guruId: "sri-aurobindo",
+    day: dayMeta.day,
+    phase: dayMeta.phase || "",
+    theme: dayMeta.theme || "",
+    workHint: dayMeta.workHint || dayMeta.work || "",
+    minWords: 60,
+    maxWords: 120
+  };
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      console.error("Day-reading HTTP error:", response.status);
+      elExcerpt.textContent =
+        "We had trouble fetching today's reading. Please refresh and try again.";
+      return;
+    }
+
+    const data = await response.json();
+    const passage = data && data.passage ? data.passage : null;
+
+    if (!passage || !passage.text) {
+      elExcerpt.textContent =
+        "No suitable passage could be found just now. Please refresh and try again.";
+      return;
+    }
+
+    // Insert the passage text
+    elExcerpt.textContent = (passage.text || "").trim();
+
+    // Optionally update the "Work" line if we got more precise info
+    const elWork = document.getElementById("iyDayWork");
+    if (elWork) {
+      const workName = passage.work || dayMeta.work || "";
+      const section = passage.section || "";
+      elWork.textContent = section ? `${workName} — ${section}` : workName;
+    }
+  } catch (err) {
+    console.error("Day-reading fetch failed:", err);
+    elExcerpt.textContent =
+      "We had trouble fetching today's reading. Please check your connection and refresh.";
+  }
+}
 
 // --- Basic router (hash-based) ---
 (function router(){
@@ -756,6 +823,7 @@ const integralYogaJourneyDays = [
     }
   });
 })();
+
 // --- 21 Days: render Day 1 on the journey page ---
 (function setupIyDay1() {
   if (typeof integralYogaJourneyDays === "undefined") return;
@@ -778,13 +846,20 @@ const integralYogaJourneyDays = [
   if (elTheme) {
     elTheme.textContent = day1.theme;
   }
-  if (elExcerpt && day1.excerpt) {
-    elExcerpt.textContent = day1.excerpt;
+  // UPDATED: we no longer show the hard-coded placeholder; we start with a loading message.
+  if (elExcerpt) {
+    elExcerpt.textContent = "Finding a passage for you...";
   }
   if (elReflection && day1.reflectionHint) {
     elReflection.textContent = day1.reflectionHint;
   }
+
+  // NEW: actually fetch the passage for Day 1 from the backend
+  if (typeof loadDayReadingForIntegralYoga === "function") {
+    loadDayReadingForIntegralYoga(day1);
+  }
 })();
+
 // --- Guided journey navigation: Sri Aurobindo <-> 21 Days with Integral Yoga ---
 (function setupIyNavigation() {
   const secAuro = document.getElementById('aurobindo');
