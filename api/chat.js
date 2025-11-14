@@ -1,10 +1,78 @@
 // FILE: api/chat.js
-// Real OpenAI-backed Q&A + Day-Reading for Atma Samvad — Sri Aurobindo & The Mother.
+// Real OpenAI-backed backend for Atma Samvad — Sri Aurobindo & The Mother.
+//
+// Supports two actions (same envelope):
+//   1) action: "qa"         → Samvad Q&A (existing behaviour)
+//   2) action: "dayReading" → 21-day guided reading passage picker (new)
+//
+// Envelope (from frontend):
+//   {
+//     mode: "samvad",
+//     guru: "aurobindo",
+//     action: "qa" | "dayReading",
+//     ...other fields...
+//   }
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-// This is your Sri Aurobindo vector store (The Synthesis of Yoga + Essays on the Gita, for now).
-const SRI_AUROBINDO_VECTOR_STORE_ID = "vs_69171e7134a881918eec0282edbc65ab";
+// For now we hard-code your Sri Aurobindo + The Mother vector store ID.
+// Later we can move this into an env var if you prefer.
+const SA_VECTOR_STORE_ID = "vs_69171e7134a881918eec0282edbc65ab";
+
+// ---------- Small helpers ----------
+
+function parseBody(req) {
+  try {
+    if (typeof req.body === "string") {
+      return JSON.parse(req.body || "{}");
+    }
+    return req.body || {};
+  } catch {
+    return {};
+  }
+}
+
+// Extracts text from Responses API result.
+// Prefer response.output_text, but fall back to walking response.output if needed.
+function extractTextFromResponses(result) {
+  if (!result) return "";
+
+  if (typeof result.output_text === "string" && result.output_text.trim()) {
+    return result.output_text.trim();
+  }
+
+  // Fallback: walk result.output[*].content[*].text
+  try {
+    if (Array.isArray(result.output)) {
+      for (const item of result.output) {
+        if (!item || !Array.isArray(item.content)) continue;
+        for (const part of item.content) {
+          if (part && typeof part.text === "string" && part.text.trim()) {
+            return part.text.trim();
+          }
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return "";
+}
+
+// Trim text to a word window (roughly minWords–maxWords).
+function clampWords(text, minWords, maxWords) {
+  const cleaned = (text || "").replace(/\s+/g, " ").trim();
+  if (!cleaned) return "";
+
+  const words = cleaned.split(" ");
+  if (words.length <= maxWords) {
+    return cleaned;
+  }
+  return words.slice(0, maxWords).join(" ");
+}
+
+// ---------- Main handler ----------
 
 module.exports = async (req, res) => {
   try {
@@ -14,19 +82,25 @@ module.exports = async (req, res) => {
       return res.status(405).json({ error: "Method Not Allowed" });
     }
 
-    // Parse body safely (handles both JSON and already-parsed objects)
-    let body = {};
-    try {
-      body =
-        typeof req.body === "string"
-          ? JSON.parse(req.body || "{}")
-          : (req.body || {});
-    } catch {
-      body = {};
+    const body = parseBody(req);
+    const {
+      question = "",
+      depth = "plain",
+      mode,
+      guru,
+      action,
+    } = body;
+
+    // Basic envelope check: must be Samvad + Aurobindo, but allow two actions.
+    const isSamvadEnvelope = mode === "samvad" && guru === "aurobindo";
+    if (!isSamvadEnvelope) {
+      return res.status(400).json({
+        error: "Bad request envelope",
+        got: { mode, guru, action },
+      });
     }
 
-    const { mode, guru, action } = body;
-
+    // Safety: ensure API key present
     if (!OPENAI_API_KEY) {
       console.error("OPENAI_API_KEY is not set in environment variables");
       return res
@@ -34,10 +108,8 @@ module.exports = async (req, res) => {
         .json({ error: "Server misconfigured: missing OPENAI_API_KEY" });
     }
 
-    // ---- BRANCH 1: Existing Q&A mode (unchanged contract) -------------------
-    if (mode === "samvad" && guru === "aurobindo" && action === "qa") {
-      const { question = "", depth = "plain" } = body;
-
+    // ---- Branch 1: Q&A (existing behaviour) ----
+    if (action === "qa") {
       if (!question.trim()) {
         return res.status(400).json({ error: "Question required" });
       }
@@ -142,27 +214,25 @@ Overall answering pattern
 5. End with the “Sources” section as specified above.
 `.trim();
 
-      // Combine base prompt with depth-specific instruction
       const systemPrompt = `${baseSystemPrompt}\n\n${styleInstruction}`;
 
-      // Build payload for OpenAI Chat Completions (Q&A)
       const payload = {
         model: "gpt-4.1-mini",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: question }
+          { role: "user", content: question },
         ],
         temperature: 0.4,
-        max_tokens: 900
+        max_tokens: 900,
       };
 
       const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!apiRes.ok) {
@@ -175,151 +245,124 @@ Overall answering pattern
       const rawAnswer = data?.choices?.[0]?.message?.content || "";
       const answer = (rawAnswer || "").trim();
 
-      // Static sources list (for now)
       const sources = [
         "Sri Aurobindo — The Life Divine",
         "Sri Aurobindo — The Synthesis of Yoga",
         "Sri Aurobindo — Savitri",
-        "The Mother — Prayers and Meditations"
+        "The Mother — Prayers and Meditations",
       ];
 
       return res.status(200).json({ answer, sources });
     }
 
-    // ---- BRANCH 2: New Day-Reading mode (with vector store) -----------------
-    if (mode === "dayReading") {
+    // ---- Branch 2: Day-Reading (new) ----
+    if (action === "dayReading") {
+      if (!SA_VECTOR_STORE_ID) {
+        console.error("SA_VECTOR_STORE_ID is missing (hard-coded or env)");
+        return res.status(500).json({
+          error: "Day-reading misconfigured: missing vector store id",
+        });
+      }
+
       const {
-        guruId = "sri-aurobindo",
-        day,
+        day = 1,
         phase = "",
         theme = "",
         workHint = "",
         minWords = 60,
-        maxWords = 120
+        maxWords = 120,
       } = body;
 
-      if (!day || !Number.isInteger(day)) {
-        return res.status(400).json({ error: "Valid 'day' (integer) is required" });
-      }
+      const instructions = `
+You are helping design a 21-day guided journey with short daily readings from Sri Aurobindo and The Mother.
 
-      if (!theme || !theme.trim()) {
-        return res.status(400).json({ error: "A 'theme' string is required" });
-      }
+Your task for each request:
+- Use FILE SEARCH over the provided vector store that contains authentic works of Sri Aurobindo and The Mother.
+- Select ONE short, self-contained passage (about ${minWords}-${maxWords} words).
+- The passage should be directly about the given theme, not a generic explanation.
+- Prefer clear, devotional or explanatory passages over very technical or obscure ones.
+- Do NOT add any commentary or explanation around the quote.
+- Do NOT add a title, introduction, or closing sentence.
+- Just return the passage text itself as a continuous paragraph or a few short paragraphs.
 
-      const safeMin = Math.max(30, Number(minWords) || 60);
-      const safeMax = Math.max(safeMin + 10, Number(maxWords) || 120);
-
-      // System instructions for Responses API + file_search
-      const dayReadingInstructions = `
-You are “Atma Samvad — Sri Aurobindo & The Mother”, generating a SINGLE short reading passage for a 21-day guided journey in Integral Yoga.
-
-You have access to a file_search tool connected to a vector store that contains works of Sri Aurobindo and The Mother (including "The Synthesis of Yoga" and "Essays on the Gita").
-
-Your task in this mode:
-- Use file_search to ground yourself in the actual texts from this vector store.
-- Pick ONE short, representative passage that fits the given theme.
-- Prefer a direct quote or a very close paraphrase based on the retrieved text.
-- Target length: between ${safeMin} and ${safeMax} words.
-- Do NOT exceed ${safeMax + 20} words under any circumstance.
-
-Priorities:
-- Faithfulness to the actual thought and tone of Sri Aurobindo / The Mother.
-- Clarity and accessibility for a sincere seeker who may be new to Integral Yoga.
-- If possible, choose passages from the suggested work hint (for example, "The Synthesis of Yoga") but it is okay to draw from the other uploaded works when they fit the theme.
-
-Output format:
-- You MUST return a single JSON object ONLY, no extra text, in this exact shape:
-
-  {
-    "text": "…the ${safeMin}-${safeMax} word passage…",
-    "work": "…book or collection name…",
-    "section": "…chapter / canto / talk / context, if known, else an empty string…"
-  }
-
-Rules:
-- Do NOT include any commentary or explanation in "text" — only the passage itself, as a flowing paragraph.
-- Do NOT invent precise page numbers.
-- If you are not sure of the exact section title, use a reasonable high-level label (e.g. "Early chapters on the aim of the yoga").
+If nothing perfectly matches, choose the closest helpful passage and still answer with only that passage text.
 `.trim();
 
       const userDescription = `
-Please select one short passage for day ${day} of a 21-day Integral Yoga journey.
+Please pick one short authentic passage for a guided reading.
 
-Guru ID: ${guruId}
-Phase: ${phase || "n/a"}
+Day: ${day}
+Phase: ${phase}
 Theme: ${theme}
-Work hint: ${workHint || "any suitable work of Sri Aurobindo or The Mother"}
+Work hint: ${workHint}
 
 Remember:
-- Length between ${safeMin} and ${safeMax} words.
-- Output ONLY a JSON object with keys: text, work, section.
+- Only output the passage text, with no surrounding commentary.
+- Aim for roughly ${minWords}-${maxWords} words.
 `.trim();
 
-      // Build payload for Responses API with file_search tool
       const payload = {
         model: "gpt-4.1-mini",
-        instructions: dayReadingInstructions,
-        input: userDescription,
+        input: [
+          { role: "system", content: instructions },
+          { role: "user", content: userDescription },
+        ],
         tools: [
           {
             type: "file_search",
-            vector_store_ids: [SRI_AUROBINDO_VECTOR_STORE_ID]
-          }
+            vector_store_ids: [SA_VECTOR_STORE_ID],
+          },
         ],
-        temperature: 0.3,
-        max_tokens: 500
       };
 
       const apiRes = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!apiRes.ok) {
-        const errorText = await apiRes.text();
-        console.error("OpenAI API error (Day-Reading):", apiRes.status, errorText);
-        return res.status(500).json({ error: "Upstream model error (dayReading)" });
+        const text = await apiRes.text().catch(() => "");
+        console.error("OpenAI API error (Day-Reading):", apiRes.status, text);
+        return res.status(500).json({
+          error: "Upstream day-reading error",
+        });
       }
 
-      const data = await apiRes.json();
-      const raw = (data?.output_text || "").trim();
+      const result = await apiRes.json();
+      let passageText = extractTextFromResponses(result);
+      passageText = clampWords(passageText, minWords, maxWords);
 
-      let passageObj;
-      try {
-        passageObj = JSON.parse(raw);
-      } catch {
-        // Fallback: if model didn't give clean JSON, wrap as text-only
-        passageObj = {
-          text: raw,
-          work: "Sri Aurobindo / The Mother",
-          section: ""
-        };
+      if (!passageText) {
+        console.error("Day-Reading: no passage text extracted from Responses");
+        return res.status(500).json({
+          error: "Day-reading failed to extract passage",
+        });
       }
 
-      const passage = {
-        text: String(passageObj.text || "").trim(),
-        work: String(passageObj.work || "Sri Aurobindo / The Mother").trim(),
-        section: String(passageObj.section || "").trim(),
-        // Placeholder: we are not yet surfacing the low-level file/chunk ID.
-        sourceId: null
+      // For now, we return simple metadata; frontend already uses its own 'work' text.
+      const payloadOut = {
+        ok: true,
+        guruId: "sri-aurobindo",
+        day,
+        passage: {
+          text: passageText,
+          work: workHint || "Sri Aurobindo & The Mother",
+          section: null,
+          sourceId: null,
+        },
       };
 
-      return res.status(200).json({
-        ok: true,
-        day,
-        guruId,
-        passage
-      });
+      return res.status(200).json(payloadOut);
     }
 
-    // ---- Fallback: unknown envelope ----------------------------------------
+    // If we reach here, action is unknown.
     return res.status(400).json({
-      error: "Bad request envelope",
-      got: { mode, guru, action }
+      error: "Unknown action",
+      got: { action },
     });
   } catch (e) {
     console.error("api/chat error:", e);
