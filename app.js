@@ -961,6 +961,39 @@ function renderIyDayByIndex(index) {
     }
   });
 })();
+// --- Guided reading: Copy excerpt helper ---
+(() => {
+  const btn = document.getElementById("btnCopyExcerpt");
+  if (!btn) return;
+
+  const elExcerpt = document.getElementById("iyDayExcerpt");
+  if (!elExcerpt) return;
+
+  let copyTimeout = null;
+
+  btn.addEventListener("click", async () => {
+    const text = (elExcerpt.textContent || "").trim();
+    if (!text) {
+      return; // nothing to copy yet
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+
+      const originalLabel = btn.textContent || "Copy today’s reading";
+      btn.textContent = "Copied to clipboard";
+      btn.disabled = true;
+
+      if (copyTimeout) clearTimeout(copyTimeout);
+      copyTimeout = setTimeout(() => {
+        btn.textContent = originalLabel;
+        btn.disabled = false;
+      }, 1500);
+    } catch (e) {
+      console.error("Copy excerpt failed:", e);
+    }
+  });
+})();
 // --- 21 Days: initialise journey (start at last allowed day) ---
 (function setupIyInitialDay() {
   if (
