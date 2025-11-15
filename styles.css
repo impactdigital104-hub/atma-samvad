@@ -330,3 +330,7 @@ html, body {
   box-shadow: 0 6px 14px rgba(255, 122, 24, 0.35);
   cursor: pointer;
 }
+/* Inject the label even if the HTML is empty */
+#btnEnterAurobindo::before {
+  content: "Enter Ashram";
+}
