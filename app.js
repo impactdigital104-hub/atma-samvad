@@ -893,6 +893,7 @@ function renderIyDayByIndex(index) {
   const elExcerpt = document.getElementById("iyDayExcerpt");
   const qaInput = document.getElementById("qaInput");
   const askBtn = document.getElementById("btnAsk");
+  const qaStatus = document.getElementById("qaStatus");
   if (!elExcerpt || !qaInput || !askBtn) return;
 
   btn.addEventListener("click", () => {
@@ -907,24 +908,38 @@ function renderIyDayByIndex(index) {
       return;
     }
 
-    // Prefill the Q&A box with a clear prompt + the passage
+    // 1) Prefill the Q&A box with a clear prompt + the passage
     qaInput.value =
       `Please explain this passage in simple language in the light of Integral Yoga:\n\n` +
       `"${text}"`;
 
-    // Scroll gently to the Q&A area so the user sees what is happening
-    try {
-      const rect = qaInput.getBoundingClientRect();
-      window.scrollTo({
-        top: window.scrollY + rect.top - 100,
-        behavior: "smooth"
-      });
-    } catch (_) {
-      // If scroll fails for any reason, just ignore.
+    // 2) Tell the user what is happening
+    if (qaStatus) {
+      qaStatus.textContent =
+        "Explaining today’s reading in the Q&A section…";
     }
 
-    // Trigger the usual Q&A flow (gating, logging, everything)
-    askBtn.click();
+    // 3) Switch view to the Sri Aurobindo section where Q&A lives
+    if (location.hash !== "#aurobindo") {
+      location.hash = "#aurobindo";
+    }
+
+    // 4) After the router has switched sections, focus + scroll + ask
+    setTimeout(() => {
+      try {
+        qaInput.focus();
+        const rect = qaInput.getBoundingClientRect();
+        window.scrollTo({
+          top: window.scrollY + rect.top - 120,
+          behavior: "smooth"
+        });
+      } catch (_) {
+        // Ignore scroll errors quietly
+      }
+
+      // Trigger the usual Q&A flow (gating, logging, everything)
+      askBtn.click();
+    }, 120);
   });
 })();
 // --- 21 Days: initialise journey (start at last allowed day) ---
