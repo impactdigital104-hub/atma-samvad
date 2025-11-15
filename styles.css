@@ -315,3 +315,18 @@ html, body {
     font-size: 20px;
   }
 }
+/* --- Hub: Sri Aurobindo card — ensure label shows --- */
+#btnEnterAurobindo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #ff7a18, #ffb703);
+  color: #6b2f00 !important;      /* dark text, same family as main site */
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 14px rgba(255, 122, 24, 0.35);
+  cursor: pointer;
+}
