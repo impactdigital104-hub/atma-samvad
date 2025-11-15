@@ -33,10 +33,151 @@
   </div>
 
   <main class="wrap" id="app">
-    <section id="hub" class="card">
-      <h2>Samvad Hub</h2>
-      <p>Welcome. This is the isolated build for Sri Aurobindo &amp; The Mother. Trial gating and Q&amp;A are active on this page.</p>
+  <section id="hub">
+  <!-- 👇 paste everything from here to the matching closing comment -->
+  <div class="hub-shell">
+    <!-- Hero -->
+    <header class="hub-hero">
+      <p class="hub-kicker">AI-assisted spiritual companion</p>
+      <h1 class="hub-title">Atma Samvad — Conversations with Great Teachers</h1>
+      <p class="hub-hero-lead">
+        Atma Samvad is a quiet space to sit with the teachings of great Gurus and core scriptures.
+        Explore guided readings, gentle explanations, and a safe place to ask your own questions,
+        so that spiritual wisdom can flow into your everyday life.
+      </p>
+    </header>
+
+    <!-- How it works -->
+    <section class="hub-steps" aria-label="How Atma Samvad works">
+      <h2 class="hub-section-title">How it works</h2>
+      <div class="hub-steps-row">
+        <article class="hub-step">
+          <div class="hub-step-icon" aria-hidden="true">🪔</div>
+          <h3 class="hub-step-title">Step 1: Choose a Guru or scripture</h3>
+          <p class="hub-step-text">
+            Begin with a teacher or text that calls to you — Sri Aurobindo, the Gita, the Upanishads,
+            the Guru Granth Sahib, or others as they open.
+          </p>
+        </article>
+
+        <article class="hub-step">
+          <div class="hub-step-icon" aria-hidden="true">📖</div>
+          <h3 class="hub-step-title">Step 2: Explore guided readings</h3>
+          <p class="hub-step-text">
+            Read short, curated passages with plain-language explanations and context to deepen
+            understanding without overwhelm.
+          </p>
+        </article>
+
+        <article class="hub-step">
+          <div class="hub-step-icon" aria-hidden="true">🕊️</div>
+          <h3 class="hub-step-title">Step 3: Ask your questions</h3>
+          <p class="hub-step-text">
+            Speak to the teachings in simple language. Atma Samvad responds gently, drawing from
+            authentic sources to support your inner journey.
+          </p>
+        </article>
+      </div>
     </section>
+
+    <!-- Guru / Scripture grid -->
+    <section class="hub-gurus" aria-label="Gurus and scriptures">
+      <h2 class="hub-section-title">Begin your conversation</h2>
+      <p class="hub-section-subtitle">
+        Start with Sri Aurobindo &amp; The Mother, and soon you&#8217;ll be able to enter other ashrams and scriptures as they open.
+      </p>
+
+      <div class="guru-grid">
+        <!-- Live Guru: Sri Aurobindo & The Mother -->
+        <article class="guru-card guru-card-live">
+          <div class="guru-image-placeholder" aria-hidden="true"></div>
+          <div class="guru-card-body">
+            <h3 class="guru-name">Sri Aurobindo &amp; The Mother</h3>
+            <p class="guru-tagline">
+              Integral Yoga – transformation of life, not escape from life.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-primary"
+              id="btnEnterAurobindo"
+            >
+              Enter Ashram
+            </button>
+          </div>
+        </article>
+
+        <!-- Coming soon: Bhagavad Gita -->
+        <article class="guru-card guru-card-soon">
+          <div class="guru-image-placeholder" aria-hidden="true"></div>
+          <div class="guru-card-body">
+            <h3 class="guru-name">Bhagavad Gita</h3>
+            <p class="guru-tagline">
+              Song of the Divine Teacher.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-muted btn-coming-soon"
+            >
+              Coming soon
+            </button>
+          </div>
+        </article>
+
+        <!-- Coming soon: Upanishads -->
+        <article class="guru-card guru-card-soon">
+          <div class="guru-image-placeholder" aria-hidden="true"></div>
+          <div class="guru-card-body">
+            <h3 class="guru-name">Upanishads</h3>
+            <p class="guru-tagline">
+              Wisdom of the Rishis.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-muted btn-coming-soon"
+            >
+              Coming soon
+            </button>
+          </div>
+        </article>
+
+        <!-- Coming soon: Guru Granth Sahib -->
+        <article class="guru-card guru-card-soon">
+          <div class="guru-image-placeholder" aria-hidden="true"></div>
+          <div class="guru-card-body">
+            <h3 class="guru-name">Guru Granth Sahib</h3>
+            <p class="guru-tagline">
+              Sikh scripture of devotion and equality.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-muted btn-coming-soon"
+            >
+              Coming soon
+            </button>
+          </div>
+        </article>
+
+        <!-- Coming soon: Swami Vivekananda -->
+        <article class="guru-card guru-card-soon">
+          <div class="guru-image-placeholder" aria-hidden="true"></div>
+          <div class="guru-card-body">
+            <h3 class="guru-name">Swami Vivekananda</h3>
+            <p class="guru-tagline">
+              Strength, service and fearless service.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-muted btn-coming-soon"
+            >
+              Coming soon
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+  <!-- 👆 stop pasting here -->
+</section>
 
     <!-- CHANGED: Sri Aurobindo route now contains Start Here + Guided Reading teaser + Q&A -->
        <!-- Sri Aurobindo Home: intro + journeys + Day 1 + Q&A -->
