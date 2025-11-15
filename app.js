@@ -403,7 +403,7 @@ function renderIyDayByIndex(index) {
 (function router(){
   function route(){
     const hash = location.hash || '#hub';
-    document.querySelectorAll('main section').forEach(s=>{
+ document.querySelectorAll('main > section').forEach(s=>{
       s.style.display = ('#'+s.id===hash)?'block':'none';
     });
   }
