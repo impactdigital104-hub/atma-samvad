@@ -387,7 +387,7 @@ function renderIyDayByIndex(index) {
     elStatus.textContent = `You are viewing Day ${day.day} of 21 · Phase: ${day.phase}`;
   }
   if (btnComplete) {
-    btnComplete.textContent = `Mark Day ${day.day} complete (placeholder)`;
+    btnComplete.textContent = `Mark Day ${day.day} complete`;
   }
 
   if (elExcerpt) {
