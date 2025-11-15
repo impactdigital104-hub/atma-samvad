@@ -65,3 +65,223 @@ html, body {
   color: var(--text);
   box-sizing: border-box;
 }
+/* === Atma Samvad Hub (multi-guru landing) ================================ */
+
+.hub-shell {
+  max-width: 1040px;
+  margin: 32px auto 40px;
+  padding: 24px 16px 40px;
+}
+
+.hub-hero {
+  text-align: left;
+  margin-bottom: 32px;
+}
+
+.hub-kicker {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+
+.hub-title {
+  font-size: 1.8rem;
+  margin: 0 0 10px;
+}
+
+.hub-hero-lead {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* How it works */
+
+.hub-steps {
+  margin-top: 32px;
+}
+
+.hub-section-title {
+  font-size: 1.1rem;
+  margin: 0 0 10px;
+}
+
+.hub-section-subtitle {
+  margin: 0 0 18px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.hub-steps-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.hub-step {
+  flex: 1 1 220px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.hub-step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+}
+
+.hub-step-title {
+  font-size: 0.98rem;
+  margin: 0 0 4px;
+}
+
+.hub-step-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* Guru grid */
+
+.hub-gurus {
+  margin-top: 40px;
+}
+
+.guru-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 cards per row on desktop */
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.guru-card {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition:
+    transform 0.12s ease-out,
+    box-shadow 0.12s ease-out,
+    border-color 0.12s ease-out;
+}
+
+.guru-card-live {
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+  border-color: rgba(0, 0, 0, 0.02);
+}
+
+.guru-card-live:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.28);
+}
+
+.guru-card-soon {
+  opacity: 0.96;
+}
+
+.guru-image-placeholder {
+  height: 150px;
+  background:
+    radial-gradient(circle at 0 0, rgba(31, 122, 236, 0.22), transparent),
+    radial-gradient(circle at 100% 100%, rgba(31, 122, 236, 0.08), transparent);
+}
+
+.guru-card-body {
+  padding: 14px 16px 16px;
+}
+
+.guru-name {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.guru-tagline {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Buttons */
+
+.guru-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.guru-btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.guru-btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.guru-btn-muted {
+  background: transparent;
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.9;
+}
+
+/* Make "Coming soon" buttons feel disabled but still clickable for alert */
+.guru-btn-muted.btn-coming-soon {
+  cursor: pointer;
+}
+
+.guru-btn-muted.btn-coming-soon:hover {
+  opacity: 1;
+  border-color: var(--border);
+}
+
+/* Responsive tweaks */
+
+@media (max-width: 1024px) {
+  /* 2 columns on medium screens */
+  .guru-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .hub-shell {
+    padding: 20px 8px 32px;
+  }
+
+  .hub-hero {
+    text-align: left;
+  }
+
+  .hub-title {
+    font-size: 1.5rem;
+  }
+
+  .hub-steps-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  /* 1 column on small phones */
+  .guru-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
