@@ -1038,13 +1038,47 @@ function renderIyDayByIndex(index) {
 
   function handleHash() {
     if (location.hash === '#iy-21') {
+      // Explicitly on the 21-day journey page
       showIy();
-    } else {
+    } else if (!location.hash || location.hash === '#aurobindo') {
+      // Default / explicit Sri Aurobindo page
       showAuro();
+    } else {
+      // Any other hash (e.g. #hub or future sections):
+      // hide these two and let the main router decide.
+      secAuro.style.display = 'none';
+      secIy.style.display = 'none';
     }
   }
 
   window.addEventListener('hashchange', handleHash);
   handleHash(); // run once on load
+})();
+// --- Atma Samvad Hub: Guru card wiring (added 2025-11) --------------------
+(function hubGuruWiring() {
+  function init() {
+    // Live Guru: Sri Aurobindo & The Mother
+    const btnAuro = document.getElementById('btnEnterAurobindo');
+    if (btnAuro) {
+      btnAuro.addEventListener('click', () => {
+        // Let the existing hash router + Aurobindo logic take over
+        location.hash = '#aurobindo';
+      });
+    }
+
+    // "Coming soon" Gurus
+    const soonButtons = document.querySelectorAll('.btn-coming-soon');
+    soonButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        alert('This ashram is opening soon.');
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
 
