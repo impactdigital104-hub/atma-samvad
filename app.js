@@ -399,48 +399,6 @@ function renderIyDayByIndex(index) {
   }
 }
 
-  if (index < 0 || index >= integralYogaJourneyDays.length) {
-    return;
-  }
-
-  currentIyDayIndex = index;
-  const day = integralYogaJourneyDays[index];
-
-  const elHeading = document.getElementById("iyDayHeading");
-  const elWork = document.getElementById("iyDayWork");
-  const elTheme = document.getElementById("iyDayTheme");
-  const elExcerpt = document.getElementById("iyDayExcerpt");
-  const elReflection = document.getElementById("iyDayReflection");
-  const elStatus = document.getElementById("iyDayStatus");
-  const btnComplete = document.getElementById("btnIyComplete");
-
-  if (elHeading) {
-    elHeading.textContent = `Day ${day.day} · ${day.phase} · ${day.title}`;
-  }
-  if (elWork) {
-    elWork.textContent = day.work;
-  }
-  if (elTheme) {
-    elTheme.textContent = day.theme;
-  }
-  if (elReflection && day.reflectionHint) {
-    elReflection.textContent = day.reflectionHint;
-  }
-  if (elStatus) {
-    elStatus.textContent = `You are viewing Day ${day.day} of 21 · Phase: ${day.phase}`;
-  }
-  if (btnComplete) {
-    btnComplete.textContent = `Mark Day ${day.day} complete (placeholder)`;
-  }
-
-  if (elExcerpt) {
-    elExcerpt.textContent = "Finding a passage for you...";
-  }
-
-  if (typeof loadDayReadingForIntegralYoga === "function") {
-    loadDayReadingForIntegralYoga(day);
-  }
-}
 // --- Basic router (hash-based) ---
 (function router(){
   function route(){
@@ -451,40 +409,6 @@ function renderIyDayByIndex(index) {
   }
   window.addEventListener('hashchange', route);
   route();
-})();
-// --- Guided Journey buttons (very simple wiring) ---
-(function iyButtons(){
-  function wire(){
-    // Button on Sri Aurobindo home: "View journey"
-    var btnOpen = document.getElementById('btnIy21');
-    if (btnOpen) {
-      btnOpen.addEventListener('click', function(){
-        location.hash = '#iy-21';
-      });
-    }
-
-    // Button on journey page: "Back to Sri Aurobindo Home"
-    var btnBack = document.getElementById('btnIyBack');
-    if (btnBack) {
-      btnBack.addEventListener('click', function(){
-        location.hash = '#aurobindo';
-      });
-    }
-
-    // Button on journey page: "Mark Day 1 complete (placeholder)"
-    var btnComplete = document.getElementById('btnIyComplete');
-    if (btnComplete) {
-      btnComplete.addEventListener('click', function(){
-        alert('Later this will mark Day 1 as complete and move you forward in the journey.');
-      });
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', wire);
-  } else {
-    wire();
-  }
 })();
 
 // --- Auth mini-wire (resilient) ---
