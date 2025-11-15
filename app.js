@@ -306,8 +306,41 @@ async function loadDayReadingForIntegralYoga(dayMeta) {
       "We had trouble fetching today's reading. Please check your connection and refresh.";
   }
 }
-// === Integral Yoga journey rendering state ===
+// === Integral Yoga journey rendering state + local progress (per browser) ===
 let currentIyDayIndex = 0;
+const IY_PROGRESS_KEY = "samvad_iy_maxCompletedDay";
+
+function getIyMaxCompletedDay() {
+  if (typeof window === "undefined" || !window.localStorage) return 0;
+  const raw = window.localStorage.getItem(IY_PROGRESS_KEY);
+  const n = parseInt(raw || "0", 10);
+  if (isNaN(n) || n < 0) return 0;
+  return n; // highest completed day number (0 = none)
+}
+
+function setIyMaxCompletedDay(dayNumber) {
+  if (typeof window === "undefined" || !window.localStorage) return;
+  const current = getIyMaxCompletedDay();
+  const safe = Number(dayNumber) || 0;
+  if (safe > current) {
+    window.localStorage.setItem(IY_PROGRESS_KEY, String(safe));
+  }
+}
+
+// Highest day index (0-based) the user is allowed to view
+function getIyMaxAllowedIndex() {
+  if (
+    typeof integralYogaJourneyDays === "undefined" ||
+    !Array.isArray(integralYogaJourneyDays) ||
+    !integralYogaJourneyDays.length
+  ) {
+    return 0;
+  }
+  const completed = getIyMaxCompletedDay(); // highest completed day number
+  const totalDays = integralYogaJourneyDays.length;
+  const maxAllowedDayNumber = Math.min(completed + 1, totalDays); // can see "next" day
+  return Math.max(0, maxAllowedDayNumber - 1); // convert to index
+}
 
 // Render a given day (0-based index) into the 21-day card
 function renderIyDayByIndex(index) {
@@ -318,6 +351,53 @@ function renderIyDayByIndex(index) {
   ) {
     return;
   }
+
+  const maxAllowedIndex = getIyMaxAllowedIndex();
+  if (index > maxAllowedIndex) {
+    // user tried to jump too far ahead
+    alert("Please complete today’s reflection before moving to the next day.");
+    index = maxAllowedIndex;
+  }
+  if (index < 0) index = 0;
+
+  currentIyDayIndex = index;
+  const day = integralYogaJourneyDays[index];
+
+  const elHeading = document.getElementById("iyDayHeading");
+  const elWork = document.getElementById("iyDayWork");
+  const elTheme = document.getElementById("iyDayTheme");
+  const elExcerpt = document.getElementById("iyDayExcerpt");
+  const elReflection = document.getElementById("iyDayReflection");
+  const elStatus = document.getElementById("iyDayStatus");
+  const btnComplete = document.getElementById("btnIyComplete");
+
+  if (elHeading) {
+    elHeading.textContent = `Day ${day.day} · ${day.phase} · ${day.title}`;
+  }
+  if (elWork) {
+    elWork.textContent = day.work;
+  }
+  if (elTheme) {
+    elTheme.textContent = day.theme;
+  }
+  if (elReflection && day.reflectionHint) {
+    elReflection.textContent = day.reflectionHint;
+  }
+  if (elStatus) {
+    elStatus.textContent = `You are viewing Day ${day.day} of 21 · Phase: ${day.phase}`;
+  }
+  if (btnComplete) {
+    btnComplete.textContent = `Mark Day ${day.day} complete (placeholder)`;
+  }
+
+  if (elExcerpt) {
+    elExcerpt.textContent = "Finding a passage for you...";
+  }
+
+  if (typeof loadDayReadingForIntegralYoga === "function") {
+    loadDayReadingForIntegralYoga(day);
+  }
+}
 
   if (index < 0 || index >= integralYogaJourneyDays.length) {
     return;
@@ -881,7 +961,7 @@ function renderIyDayByIndex(index) {
     }
   });
 })();
-// --- 21 Days: initialise journey (start on Day 1) ---
+// --- 21 Days: initialise journey (start at last allowed day) ---
 (function setupIyInitialDay() {
   if (
     typeof integralYogaJourneyDays === "undefined" ||
@@ -890,9 +970,10 @@ function renderIyDayByIndex(index) {
   ) {
     return;
   }
-  // Start on the first entry (Day 1)
-  renderIyDayByIndex(0);
+  const initialIndex = getIyMaxAllowedIndex();
+  renderIyDayByIndex(initialIndex);
 })();
+
 // --- Guided journey navigation: Sri Aurobindo <-> 21 Days with Integral Yoga ---
 (function setupIyNavigation() {
   const secAuro = document.getElementById('aurobindo');
@@ -943,8 +1024,17 @@ function renderIyDayByIndex(index) {
 
   if (btnComplete) {
     btnComplete.addEventListener('click', () => {
+      if (
+        typeof integralYogaJourneyDays === 'undefined' ||
+        !Array.isArray(integralYogaJourneyDays) ||
+        !integralYogaJourneyDays.length
+      ) {
+        alert('Nothing to mark complete yet.');
+        return;
+      }
       const day = integralYogaJourneyDays[currentIyDayIndex];
-      alert(`Mark Day ${day.day} complete → placeholder. Later this will store progress.`);
+      setIyMaxCompletedDay(day.day);
+      alert(`Marked Day ${day.day} as complete. You can now move to the next day.`);
     });
   }
 
