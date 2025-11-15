@@ -356,3 +356,41 @@ html, body {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
   opacity: 1;
 }
+/* 21-day journey buttons (iy-21) */
+#btnExplainExcerpt,
+#btnIyNextDay,
+#btnIyComplete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #ff7a18, #ffb703) !important;
+  color: #6b2f00 !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+}
+
+/* Softer, secondary buttons */
+#btnIyPrevDay,
+#btnIyBack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb !important;
+  background: #ffffff !important;
+  color: #374151 !important;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Small hover lift for all iy-21 buttons */
+#iy-21 button:hover {
+  filter: brightness(1.03);
+}
