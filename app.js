@@ -885,37 +885,46 @@ function renderIyDayByIndex(index) {
     }
   });
 })();
-// --- Guided reading: Copy excerpt helper ---
+// --- Guided reading: Explain today’s reading via Q&A ---
 (() => {
-  const btn = document.getElementById("btnCopyExcerpt");
+  const btn = document.getElementById("btnExplainExcerpt");
   if (!btn) return;
 
   const elExcerpt = document.getElementById("iyDayExcerpt");
-  if (!elExcerpt) return;
+  const qaInput = document.getElementById("qaInput");
+  const askBtn = document.getElementById("btnAsk");
+  if (!elExcerpt || !qaInput || !askBtn) return;
 
-  let copyTimeout = null;
-
-  btn.addEventListener("click", async () => {
+  btn.addEventListener("click", () => {
     const text = (elExcerpt.textContent || "").trim();
-    if (!text) {
-      return; // nothing to copy yet
+    if (
+      !text ||
+      text.startsWith("Finding a passage") ||
+      text.startsWith("We had trouble") ||
+      text.startsWith("No suitable passage")
+    ) {
+      alert("Please wait for today’s reading to load, then try again.");
+      return;
     }
 
+    // Prefill the Q&A box with a clear prompt + the passage
+    qaInput.value =
+      `Please explain this passage in simple language in the light of Integral Yoga:\n\n` +
+      `"${text}"`;
+
+    // Scroll gently to the Q&A area so the user sees what is happening
     try {
-      await navigator.clipboard.writeText(text);
-
-      const originalLabel = btn.textContent || "Copy today’s reading";
-      btn.textContent = "Copied to clipboard";
-      btn.disabled = true;
-
-      if (copyTimeout) clearTimeout(copyTimeout);
-      copyTimeout = setTimeout(() => {
-        btn.textContent = originalLabel;
-        btn.disabled = false;
-      }, 1500);
-    } catch (e) {
-      console.error("Copy excerpt failed:", e);
+      const rect = qaInput.getBoundingClientRect();
+      window.scrollTo({
+        top: window.scrollY + rect.top - 100,
+        behavior: "smooth"
+      });
+    } catch (_) {
+      // If scroll fails for any reason, just ignore.
     }
+
+    // Trigger the usual Q&A flow (gating, logging, everything)
+    askBtn.click();
   });
 })();
 // --- 21 Days: initialise journey (start at last allowed day) ---
