@@ -504,3 +504,60 @@ main.wrap,
 #app.wrap {
   margin-left: 240px;
 }
+/* Atma Samvad sidebar: icons + info tooltips */
+.av-sidebar .av-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.av-sidebar .av-item .av-icon svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Small "i" pill on the right */
+.av-sidebar .av-info {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid #f28c1b;
+  color: #f28c1b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+/* Tooltip bubble */
+.av-sidebar .av-tip {
+  position: absolute;
+  right: 8px;
+  top: 100%;
+  margin-top: 4px;
+  max-width: 220px;
+  background: #fffdf6;
+  color: #5b3200;
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 4px 6px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(2px);
+  transition: opacity .15s ease, transform .15s ease;
+  z-index: 20;
+}
+
+/* Show tooltip on hover */
+.av-sidebar .av-item:hover .av-tip {
+  opacity: 1;
+  transform: translateY(0);
+}
