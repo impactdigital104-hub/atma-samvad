@@ -540,5 +540,34 @@
 
   <!-- App JS -->
   <script src="/app.js" defer></script>
+   <!-- Mirror trial banner text into sidebar trial note -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var bannerTextEl = document.getElementById('trialText');
+      var sidebarTrialEl = document.getElementById('avTrialStatus');
+      if (!sidebarTrialEl) return;
+
+      function syncTrialText() {
+        if (bannerTextEl && bannerTextEl.textContent.trim()) {
+          sidebarTrialEl.textContent = bannerTextEl.textContent.trim();
+        } else {
+          sidebarTrialEl.textContent = 'Sign in to start your 3\u2011day trial.';
+        }
+      }
+
+      // Initial sync
+      syncTrialText();
+
+      // If the banner text changes later (e.g. 3d → 2d), keep it in sync
+      if (bannerTextEl) {
+        var obs = new MutationObserver(syncTrialText);
+        obs.observe(bannerTextEl, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        });
+      }
+    });
+  </script>
 </body>
 </html>
