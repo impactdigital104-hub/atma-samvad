@@ -476,3 +476,13 @@ html, body {
   color: #6b7280; /* soft grey */
   line-height: 1.4;
 }
+.hub-gate {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #374151;
+}
