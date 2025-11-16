@@ -571,3 +571,24 @@ main.wrap,
 .av-footer-links a:hover {
   text-decoration: underline;
 }
+/* Tighter header + trial banner layout on Samvad hub */
+.hdr {
+  margin-bottom: 8px;              /* less gap between title and banner */
+}
+
+.hdr + #trialBanner {
+  margin-top: 4px;                 /* pull banner closer to the title */
+}
+
+#trialBanner {
+  font-size: 0.95rem;
+}
+
+#trialBanner .wrap {
+  padding: 4px 0;                  /* thinner banner height (was 8px) */
+}
+
+/* Reduce gap between banner and main content */
+#trialBanner + main#app {
+  margin-top: 16px;                /* bring “AI-ASSISTED SPIRITUAL COMPANION” closer */
+}
