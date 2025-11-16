@@ -146,24 +146,26 @@
       <h2 class="hub-section-title">Begin your conversation</h2>
       <p class="hub-section-subtitle">
         Start with Sri Aurobindo &amp; The Mother, and soon you’ll be able to enter other ashrams and scriptures as they open.
-      </p>
- <!-- Soft gate shown when user is not signed in -->
+      </p>      <!-- Soft gate shown when user is not signed in -->
       <div id="hubGate" class="hub-gate">
         <strong>Sign in to enter the ashram.</strong><br />
-        Atma Samvad is a paid section with a 3-day full access trial. Please sign in on the main Atma Vani site, then return here to enter Sri Aurobindo &amp; The Mother.
-        <div style="margin-top:8px;">
-          <a
-            href="https://www.atmavani.life/#signup"
-            target="_blank"
-            rel="noopener"
-            style="display:inline-block;padding:6px 12px;border-radius:999px;
-                   border:1px solid #e5e7eb;background:#111827;color:#f9fafb;
-                   text-decoration:none;font-weight:600;font-size:0.88rem;"
+        Atma Samvad is a paid section with a 3-day full access trial.
+        Please sign in below to begin your trial with Sri Aurobindo &amp; The Mother.
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <button
+            id="btnAuth"
+            type="button"
+            style="padding:6px 12px;border-radius:999px;border:1px solid #111827;
+                   background:#111827;color:#f9fafb;font-weight:600;cursor:pointer;
+                   font-size:0.88rem;"
           >
-            Go to Atma Vani sign-in
-          </a>
+            Sign in with Google
+          </button>
+          <span id="badge" style="font-size:0.85rem;color:#4b5563;"></span>
         </div>
       </div>
+
+
       <div class="guru-grid">
         <!-- Live Guru: Sri Aurobindo & The Mother -->
         <article class="guru-card guru-card-live">
