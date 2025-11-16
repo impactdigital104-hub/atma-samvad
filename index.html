@@ -556,7 +556,7 @@
 
   <!-- App JS -->
   <script src="/app.js" defer></script>
-   <!-- Mirror trial banner text into sidebar trial note -->
+    <!-- Mirror trial banner text into sidebar trial note -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var bannerTextEl = document.getElementById('trialText');
@@ -583,6 +583,79 @@
           characterData: true
         });
       }
+    });
+  </script>
+
+  <!-- Soft sign-in gate based on Firebase auth (Aurobindo page) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var gate = document.getElementById('aurobindoGate');
+      if (!gate) return;
+
+      function showGate(show) {
+        gate.style.display = show ? 'block' : 'none';
+      }
+
+      // If Firebase wiring isn't available, keep the gate visible
+      var samvad = window.__samvad || null;
+      if (!samvad || !samvad.auth || !samvad.onAuthStateChanged) {
+        showGate(true);
+        return;
+      }
+
+      // Use the existing Firebase auth to toggle gate
+      samvad.onAuthStateChanged(samvad.auth, function (user) {
+        if (user) {
+          // Signed-in user: hide the gentle reminder
+          showGate(false);
+        } else {
+          // Not signed in: show the gentle reminder
+          showGate(true);
+        }
+      });
+    });
+  </script>
+
+  <!-- Hub gate + block Enter Ashram for signed-out users -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var hubGate = document.getElementById('hubGate');
+      var enterBtn = document.getElementById('btnEnterAurobindo');
+      if (!hubGate || !enterBtn) return;
+
+      function applyState(user) {
+        if (user) {
+          // Signed in: hide gate, enable button
+          hubGate.style.display = 'none';
+          enterBtn.disabled = false;
+          enterBtn.style.opacity = '';
+          enterBtn.style.cursor = 'pointer';
+        } else {
+          // Not signed in: show gate, disable button, and bounce from inner routes
+          hubGate.style.display = 'block';
+          enterBtn.disabled = true;
+          enterBtn.style.opacity = '0.6';
+          enterBtn.style.cursor = 'not-allowed';
+
+          if (window.location.hash === '#aurobindo' || window.location.hash === '#iy-21') {
+            window.location.hash = '#hub';
+            setTimeout(function () {
+              hubGate.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 200);
+          }
+        }
+      }
+
+      var samvad = window.__samvad || null;
+      if (!samvad || !samvad.auth || !samvad.onAuthStateChanged) {
+        // If we can't read auth, treat as signed out
+        applyState(null);
+        return;
+      }
+
+      samvad.onAuthStateChanged(samvad.auth, function (user) {
+        applyState(user);
+      });
     });
   </script>
 </body>
