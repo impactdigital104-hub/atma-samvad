@@ -486,3 +486,21 @@ html, body {
   line-height: 1.5;
   color: #374151;
 }
+/* --- Samvad: sidebar layout + scroll --- */
+.av-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 240px;          /* same width we are visually using */
+  overflow-y: auto;      /* <-- makes it scrollable */
+  overflow-x: hidden;
+  background: #ffffff;
+  z-index: 100;
+}
+
+/* Ensure the main content clears the sidebar */
+main.wrap,
+#app.wrap {
+  margin-left: 240px;
+}
