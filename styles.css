@@ -592,3 +592,7 @@ main.wrap,
 #trialBanner + main#app {
   margin-top: 16px;                /* bring “AI-ASSISTED SPIRITUAL COMPANION” closer */
 }
+/* Tighter gap between trial banner and main content */
+#trialBanner + main#app {
+  margin-top: 12px !important;
+}
