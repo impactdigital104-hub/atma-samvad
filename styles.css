@@ -470,3 +470,9 @@ html, body {
 .ftr {
   margin-left: 248px;
 }
+.av-trial-note {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: #6b7280; /* soft grey */
+  line-height: 1.4;
+}
