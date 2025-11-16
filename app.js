@@ -537,17 +537,25 @@ function renderIyDayByIndex(index) {
       : new Date();
     return { tier, daysLeft: daysLeftUTC(started) };
   }
-  function setBanner(tier, daysLeft) {
+    function setBanner(tier, daysLeft) {
     const bar = document.getElementById('trialBanner');
     const txt = document.getElementById('trialText');
     if (!bar || !txt) return;
-    if (tier === 'premium') { bar.style.display = 'none'; return; }
+
+    if (tier === 'premium') {
+      bar.style.display = 'none';
+      return;
+    }
+
     if (tier === 'trial') {
-      txt.textContent = `Full access trial — ${daysLeft} day${daysLeft===1?'':'s'} left`;
+      txt.textContent = `Full access trial — ${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
       bar.style.display = 'block';
       return;
     }
-    txt.textContent = `Trial ended — Upgrade to continue`;
+
+    // Signed out / unknown tier (e.g. 'none'):
+    // invite user to sign in and start the trial
+    txt.textContent = 'Sign in to start your 3\u2011day trial.';
     bar.style.display = 'block';
   }
   function wire(api) {
