@@ -561,3 +561,13 @@ main.wrap,
   opacity: 1;
   transform: translateY(0);
 }
+/* Atma Samvad footer links – match main Atma Vani orange */
+.av-footer-links a {
+  color: #f97316;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.av-footer-links a:hover {
+  text-decoration: underline;
+}
