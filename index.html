@@ -813,5 +813,46 @@
       });
     });
   </script>
+    <!-- Mobile sidebar toggle (hamburger + overlay) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var toggle = document.getElementById('avMobileMenuToggle');
+      var overlay = document.getElementById('avMobileOverlay');
+      var sidebar = document.querySelector('.av-sidebar');
+
+      if (!toggle || !sidebar) return;
+
+      function closeMenu() {
+        document.body.classList.remove('av-sidebar-open');
+      }
+
+      function toggleMenu() {
+        document.body.classList.toggle('av-sidebar-open');
+      }
+
+      // Click on hamburger toggles the menu
+      toggle.addEventListener('click', function () {
+        toggleMenu();
+      });
+
+      // Click on overlay closes the menu
+      if (overlay) {
+        overlay.addEventListener('click', function () {
+          closeMenu();
+        });
+      }
+
+      // Clicking any link inside sidebar also closes the menu (on mobile)
+      sidebar.addEventListener('click', function (e) {
+        var link = e.target.closest('a');
+        if (link) {
+          closeMenu();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
 </body>
 </html>
