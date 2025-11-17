@@ -596,3 +596,114 @@ main.wrap,
 #trialBanner + main#app {
   margin-top: 12px !important;
 }
+/* ============================
+   Atma Samvad – Mobile layout
+   ============================ */
+
+/* Base state: hide mobile topbar and overlay on desktop */
+.av-mobile-topbar {
+  display: none;
+}
+
+.av-mobile-overlay {
+  display: none;
+}
+
+/* ------ Mobile behaviour (small screens only) ------ */
+@media (max-width: 900px) {
+  /* Show the mobile top bar */
+  .av-mobile-topbar {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 110;
+    background: #111827;
+    color: #f9fafb;
+    padding: 8px 12px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .av-mobile-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .av-mobile-title img {
+    height: 28px;
+    width: auto;
+    border-radius: 6px;
+  }
+
+  .av-mobile-menu-btn {
+    border: none;
+    background: transparent;
+    padding: 4px;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .av-mobile-menu-btn span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #f9fafb;
+    border-radius: 2px;
+  }
+
+  /* Sidebar: off-canvas by default on mobile */
+  .av-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease-out;
+    width: 260px;
+    max-width: 80vw;
+    z-index: 120;
+  }
+
+  /* When body has this class, slide sidebar in */
+  body.av-sidebar-open .av-sidebar {
+    transform: translateX(0);
+  }
+
+  /* Dark overlay behind sidebar when open */
+  .av-mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 115;
+    display: none;
+  }
+
+  body.av-sidebar-open .av-mobile-overlay {
+    display: block;
+  }
+
+  /* Remove left margin on mobile so content is full width */
+  .hdr,
+  #trialBanner,
+  #app,
+  .ftr,
+  main.wrap,
+  #app.wrap {
+    margin-left: 0 !important;
+  }
+
+  /* Optional: make steps and guru cards stack nicely */
+  .hub-steps-row,
+  .guru-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .guru-card {
+    max-width: 100%;
+  }
+}
+
