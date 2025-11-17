@@ -8,6 +8,27 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
+    <!-- Mobile top bar (Atma Samvad) -->
+  <div class="av-mobile-topbar">
+    <button
+      id="avMobileMenuToggle"
+      class="av-mobile-menu-btn"
+      type="button"
+      aria-label="Open menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="av-mobile-title">
+      <img
+        alt="Atma Vani logo"
+        src="https://atmavani.life/wp-content/uploads/2025/07/atma-vani-logo.jpg"
+      />
+      <span>Atma Samvad</span>
+    </div>
+  </div>
   <!-- Atma Vani global sidebar inside Samvad -->
   <nav class="av-sidebar">
     <div class="av-brand">
@@ -187,6 +208,8 @@
       </div>
     </div>
   </nav>
+  <!-- Overlay for mobile sidebar -->
+  <div class="av-mobile-overlay" id="avMobileOverlay"></div>
      <header class="hdr" style="margin-bottom:4px;">
     <div class="wrap">
       <h1>Atma Samvad — The Spiritual Ashrams</h1>
