@@ -596,3 +596,25 @@ main.wrap,
 #trialBanner + main#app {
   margin-top: 12px !important;
 }
+/* Mobile layout for Atma Samvad: hide sidebar and use full-width content */
+@media (max-width: 900px) {
+  /* Hide the fixed left sidebar on phones / small tablets */
+  .av-sidebar {
+    display: none;
+  }
+
+  /* Let the main content breathe edge-to-edge with safe padding */
+  body {
+    margin: 0;
+  }
+
+  .hdr .wrap,
+  main.wrap,
+  #app.wrap,
+  .wrap {
+    margin-left: 0;       /* remove the desktop offset for the sidebar */
+    max-width: 100%;      /* allow full width */
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
