@@ -621,9 +621,9 @@ function renderIyDayByIndex(index) {
     const closeBtn = document.getElementById('btnClosePaywall');
     const upgradeBtn = document.getElementById('btnUpgrade');
     if (closeBtn) closeBtn.addEventListener('click', () => showPaywall(false));
-    if (upgradeBtn) upgradeBtn.addEventListener('click', () => {
-      alert('Upgrade flow will appear here.');
-      showPaywall(false);
+     if (upgradeBtn) upgradeBtn.addEventListener('click', () => {
+    window.location.href = 'https://www.atmavani.life/atma-samvad-pricing.html';
+  });
     });
     // expose for Q&A module below
     window.__samvadGate = { getSamvadStatus, showPaywall };
