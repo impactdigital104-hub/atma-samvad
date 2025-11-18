@@ -623,7 +623,6 @@ function renderIyDayByIndex(index) {
     if (closeBtn) closeBtn.addEventListener('click', () => showPaywall(false));
      if (upgradeBtn) upgradeBtn.addEventListener('click', () => {
     window.location.href = 'https://www.atmavani.life/atma-samvad-pricing.html';
-  });
     });
     // expose for Q&A module below
     window.__samvadGate = { getSamvadStatus, showPaywall };
