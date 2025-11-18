@@ -560,7 +560,9 @@ function renderIyDayByIndex(index) {
   }
   function wire(api) {
     const upg = document.getElementById('trialUpgrade');
-    if (upg) upg.addEventListener('click', () => { alert('Upgrade flow will appear here.'); });
+      if (upg) upg.addEventListener('click', () => {
+    window.location.href = 'https://www.atmavani.life/atma-samvad-pricing.html';
+  });
     api.onAuthStateChanged(api.auth, async () => {
       try {
         const s = await fetchStatus(api);
