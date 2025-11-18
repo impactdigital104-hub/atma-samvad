@@ -561,7 +561,7 @@ function renderIyDayByIndex(index) {
   function wire(api) {
     const upg = document.getElementById('trialUpgrade');
       if (upg) upg.addEventListener('click', () => {
-    window.location.href = 'https://www.atmavani.life/atma-samvad-pricing.html';
+    window.location.href = 'https://www.atmavani.life/atma-samvad-pricing';
   });
     api.onAuthStateChanged(api.auth, async () => {
       try {
@@ -622,7 +622,7 @@ function renderIyDayByIndex(index) {
     const upgradeBtn = document.getElementById('btnUpgrade');
     if (closeBtn) closeBtn.addEventListener('click', () => showPaywall(false));
      if (upgradeBtn) upgradeBtn.addEventListener('click', () => {
-    window.location.href = 'https://www.atmavani.life/atma-samvad-pricing.html';
+    window.location.href = 'https://www.atmavani.life/atma-samvad-pricing';
     });
     // expose for Q&A module below
     window.__samvadGate = { getSamvadStatus, showPaywall };
