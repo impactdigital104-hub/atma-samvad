@@ -1,1 +1,709 @@
+<!-- FILE: styles.css -->
+:root {
+  --bg: #ffffff;
+  --card: #ffffff;
+
+  --panel: #f6f8fa;
+  --soft: #eef2f6;
+
+  --text: #0a0f16;
+  --muted: #66768a;
+
+  --accent: #ff7a18;
+  --accent-2: #ffb703;
+  --accent-3: #ff9340;
+  --accent-4: #fff3d6;
+
+  --border: rgba(0, 0, 0, 0.08);
+  --chip: #f4f6f8;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+
+.hdr{
+  position:sticky;
+  top:0;
+  background:#ffffff;
+  border-bottom:1px solid var(--border);
+  z-index:40;
+}
+
+.hdr .wrap{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+
+.nav{color:var(--muted);margin-left:14px;text-decoration:none}
+.nav:hover{color:var(--text)}
+
+.card{
+  background:#ffffff;
+  border:1px solid var(--border);
+  padding:20px;
+  margin:16px 0 20px;
+  border-radius:16px;
+  box-shadow:var(--shadow);
+}
+
+.ftr{border-top:1px solid var(--border);padding:16px;color:var(--muted);margin-top:24px}
+
+/* --- Atma Samvad Sri Aurobindo styling refresh --- */
+
+/* Overall page */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Main layout wrapper */
+.wrap {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+/* Card panels (Sri Aurobindo sections, Q&A, etc.) */
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 15px rgba(15, 23, 42, 0.08);
+}
+
+/* Headings inside cards */
+.card h2,
+.card h3 {
+  margin-top: 0;
+}
+
+/* View journey button – match Enter Ashram styling */
+#btnIy21 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #ff7a18, #ffb703) !important;
+  color: #6b2f00 !important;
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+}
+
+/* Q&A textarea */
+#qaInput {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  box-sizing: border-box;
+}
+/* === Atma Samvad Hub (multi-guru landing) ================================ */
+
+.hub-shell {
+  max-width: 1040px;
+  margin: 32px auto 40px;
+  padding: 24px 16px 40px;
+}
+
+.hub-hero {
+  text-align: left;
+  margin-bottom: 32px;
+}
+
+.hub-kicker {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+
+.hub-title {
+  font-size: 1.8rem;
+  margin: 0 0 10px;
+}
+
+.hub-hero-lead {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* How it works */
+
+.hub-steps {
+  margin-top: 32px;
+}
+
+.hub-section-title {
+  font-size: 1.1rem;
+  margin: 0 0 10px;
+}
+
+.hub-section-subtitle {
+  margin: 0 0 18px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.hub-steps-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.hub-step {
+  flex: 1 1 220px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.hub-step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+}
+
+.hub-step-title {
+  font-size: 0.98rem;
+  margin: 0 0 4px;
+}
+
+.hub-step-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+/* --- Atma Samvad Hub: layout & cards (aligned with main site) --- */
+
+.hub-shell {
+  margin: 32px 0 40px;
+}
+
+.hub-gurus {
+  margin-top: 24px;
+}
+
+.hub-section-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: #111827;
+}
+
+.hub-section-subtitle {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Guru grid: responsive 3×? on desktop, 1 per row on mobile */
+.guru-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.guru-card {
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.guru-card-live {
+  /* slightly stronger shadow for the “live” ashram */
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+/* Image area */
+.guru-image-placeholder {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.guru-image-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Card body */
+.guru-card-body {
+  padding: 14px 16px 16px;
+}
+
+.guru-name {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.guru-tagline {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Buttons */
+.guru-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.08s ease;
+}
+
+.guru-btn-primary {
+  background: linear-gradient(90deg, var(--accent), var(--accent-3));
+  color: #fff;
+  border-color: var(--accent-2);
+  box-shadow: 0 6px 14px rgba(255, 122, 24, 0.35);
+}
+
+.guru-btn-primary:hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+
+.guru-btn-muted {
+  background: #f5f5f5;
+  color: var(--muted);
+  border-color: var(--border);
+  cursor: default;
+}
+
+.guru-btn-muted:hover {
+  filter: none;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .hub-shell {
+    margin-top: 20px;
+  }
+
+  .hub-section-title {
+    font-size: 20px;
+  }
+}
+/* --- Hub: Sri Aurobindo card — ensure label shows --- */
+#btnEnterAurobindo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #ff7a18, #ffb703);
+  color: #6b2f00 !important;      /* dark text, same family as main site */
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 14px rgba(255, 122, 24, 0.35);
+  cursor: pointer;
+}
+/* Make "View journey" button clearly visible */
+#btnIy21 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid #f97316;
+  background: #ff7a18;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  opacity: 1;
+}
+/* 21-day journey buttons (iy-21) */
+#btnExplainExcerpt,
+#btnIyNextDay,
+#btnIyComplete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #ff7a18, #ffb703) !important;
+  color: #6b2f00 !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+}
+
+/* Softer, secondary buttons */
+#btnIyPrevDay,
+#btnIyBack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb !important;
+  background: #ffffff !important;
+  color: #374151 !important;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Small hover lift for all iy-21 buttons */
+#iy-21 button:hover {
+  filter: brightness(1.03);
+}
+/* === Atma Vani global sidebar shell inside Samvad === */
+.av-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 248px;
+  background: #ffffff;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 16px 12px 24px;
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+
+.av-brand img {
+  width: 148px;
+  height: auto;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.av-section {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #425466;
+  letter-spacing: 0.04em;
+}
+
+.av-subhead {
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #ff7a18; /* Atma Vani orange */
+}
+
+.av-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.av-item {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #182230;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.av-item:hover {
+  background: #f6f8fa;
+}
+
+.av-item-active {
+  background: #fff3d6;
+  border: 1px solid #ffb703;
+}
+
+.av-spacer {
+  flex: 1;
+}
+
+/* Push Samvad content to the right so it doesn't sit under the sidebar */
+.hdr,
+#trialBanner,
+#app,
+.ftr {
+  margin-left: 248px;
+}
+.av-trial-note {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: #6b7280; /* soft grey */
+  line-height: 1.4;
+}
+.hub-gate {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #374151;
+}
+/* --- Samvad: sidebar layout + scroll --- */
+.av-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 240px;          /* same width we are visually using */
+  overflow-y: auto;      /* <-- makes it scrollable */
+  overflow-x: hidden;
+  background: #ffffff;
+  z-index: 100;
+}
+
+/* Ensure the main content clears the sidebar */
+main.wrap,
+#app.wrap {
+  margin-left: 240px;
+}
+/* Atma Samvad sidebar: icons + info tooltips */
+.av-sidebar .av-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.av-sidebar .av-item .av-icon svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Small "i" pill on the right */
+.av-sidebar .av-info {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid #f28c1b;
+  color: #f28c1b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+/* Tooltip bubble */
+.av-sidebar .av-tip {
+  position: absolute;
+  right: 8px;
+  top: 100%;
+  margin-top: 4px;
+  max-width: 220px;
+  background: #fffdf6;
+  color: #5b3200;
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 4px 6px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(2px);
+  transition: opacity .15s ease, transform .15s ease;
+  z-index: 20;
+}
+
+/* Show tooltip on hover */
+.av-sidebar .av-item:hover .av-tip {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Atma Samvad footer links – match main Atma Vani orange */
+.av-footer-links a {
+  color: #f97316;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.av-footer-links a:hover {
+  text-decoration: underline;
+}
+/* Tighter header + trial banner layout on Samvad hub */
+.hdr {
+  margin-bottom: 8px;              /* less gap between title and banner */
+}
+
+.hdr + #trialBanner {
+  margin-top: 4px;                 /* pull banner closer to the title */
+}
+
+#trialBanner {
+  font-size: 0.95rem;
+}
+
+#trialBanner .wrap {
+  padding: 4px 0;                  /* thinner banner height (was 8px) */
+}
+
+/* Reduce gap between banner and main content */
+#trialBanner + main#app {
+  margin-top: 16px;                /* bring “AI-ASSISTED SPIRITUAL COMPANION” closer */
+}
+/* Tighter gap between trial banner and main content */
+#trialBanner + main#app {
+  margin-top: 12px !important;
+}
+/* ============================
+   Atma Samvad – Mobile layout
+   ============================ */
+
+/* Base state: hide mobile topbar and overlay on desktop */
+.av-mobile-topbar {
+  display: none;
+}
+
+.av-mobile-overlay {
+  display: none;
+}
+
+/* ------ Mobile behaviour (small screens only) ------ */
+@media (max-width: 900px) {
+  /* Show the mobile top bar */
+  .av-mobile-topbar {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 110;
+    background: #111827;
+    color: #f9fafb;
+    padding: 8px 12px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .av-mobile-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .av-mobile-title img {
+    height: 28px;
+    width: auto;
+    border-radius: 6px;
+  }
+
+  .av-mobile-menu-btn {
+    border: none;
+    background: transparent;
+    padding: 4px;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .av-mobile-menu-btn span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #f9fafb;
+    border-radius: 2px;
+  }
+
+  /* Sidebar: off-canvas by default on mobile */
+  .av-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease-out;
+    width: 260px;
+    max-width: 80vw;
+    z-index: 120;
+  }
+
+  /* When body has this class, slide sidebar in */
+  body.av-sidebar-open .av-sidebar {
+    transform: translateX(0);
+  }
+
+  /* Dark overlay behind sidebar when open */
+  .av-mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 115;
+    display: none;
+  }
+
+  body.av-sidebar-open .av-mobile-overlay {
+    display: block;
+  }
+
+  /* Remove left margin on mobile so content is full width */
+  .hdr,
+  #trialBanner,
+  #app,
+  .ftr,
+  main.wrap,
+  #app.wrap {
+    margin-left: 0 !important;
+  }
+
+  /* Optional: make steps and guru cards stack nicely */
+  .hub-steps-row,
+  .guru-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .guru-card {
+    max-width: 100%;
+  }
+}
 
