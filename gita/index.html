@@ -1,1 +1,860 @@
+<!-- FILE: index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atma Samvad — The Spiritual Ashram's (MVP)</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+    <!-- Mobile top bar (Atma Samvad) -->
+  <div class="av-mobile-topbar">
+    <button
+      id="avMobileMenuToggle"
+      class="av-mobile-menu-btn"
+      type="button"
+      aria-label="Open menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
+    <div class="av-mobile-title">
+      <img
+        alt="Atma Vani logo"
+        src="https://atmavani.life/wp-content/uploads/2025/07/atma-vani-logo.jpg"
+      />
+      <span>Atma Samvad</span>
+    </div>
+  </div>
+  <!-- Atma Vani global sidebar inside Samvad -->
+  <nav class="av-sidebar">
+    <div class="av-brand">
+      <img
+        alt="Atma Vani logo"
+        src="https://atmavani.life/wp-content/uploads/2025/07/atma-vani-logo.jpg"
+      />
+    </div>
+
+    <div class="av-section">Quick actions</div>
+    <div class="av-menu">
+      <a class="av-item" href="https://www.atmavani.life/#new-chat">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </span>
+        <span class="av-label">New Chat</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Start a fresh conversation.</span>
+      </a>
+
+      <a class="av-item" href="https://www.atmavani.life/#search-chats">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="10" cy="10" r="4" />
+            <path d="M15 15l4 4" />
+          </svg>
+        </span>
+        <span class="av-label">Search Chats</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Search within this session.</span>
+      </a>
+    </div>
+
+    <div class="av-section">Services</div>
+
+    <div class="av-subhead">I. The Guru’s Role</div>
+    <div class="av-menu">
+      <a class="av-item" href="https://www.atmavani.life/atma-marg">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M7.5 20.5c-1.3 0-2.1-1-1.9-2 .2-.9 1.2-1.6 2.3-1.4 1.1.2 1.8 1.3 1.6 2.2-.1.7-.9 1.2-2 1.2zM15.3 18c-1.4 0-2.3-1.1-2-2.3.2-.9 1.4-1.6 2.6-1.4s1.9 1.2 1.7 2.1c-.2.9-1 1.6-2.3 1.6zM4 8c3-3 8-3 12 2" />
+          </svg>
+        </span>
+        <span class="av-label">Atma Marg</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Custom spiritual path and chosen deity guidance.</span>
+      </a>
+
+      <a class="av-item" href="https://www.atmavani.life/atma-sadhana">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 5c1.6 1.6 2.2 3.2 2.2 4.4-1-1-2.2-1-2.2-1s-1.2 0-2.2 1C9.8 8.2 10.4 6.6 12 5z" />
+            <path d="M12 20c5 0 8-3 8-3-3 0-5-2-5-4 0 0-1 2-3 2s-3-2-3-2c0 2-2 4-5 4 0 0 3 3 8 3z" />
+          </svg>
+        </span>
+        <span class="av-label">Atma Sadhana</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Personalized daily spiritual practice and discipline.</span>
+      </a>
+
+      <!-- CURRENT SECTION highlighted -->
+      <a class="av-item av-item-active" href="#hub">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 6h11v7H8l-3 3z" />
+            <path d="M10 9h11v7h-4l-3 3" />
+          </svg>
+        </span>
+        <span class="av-label">Atma Samvad</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">One-on-one personal guidance and spiritual dialogue.</span>
+      </a>
+    </div>
+
+    <div class="av-subhead">II. The Philosopher’s Role</div>
+    <div class="av-menu">
+      <a class="av-item" href="https://www.atmavani.life/#vyakhya-vani">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M6 5h10a2 2 0 0 1 2 2v11H8a2 2 0 0 1-2-2z" />
+            <path d="M6 5a2 2 0 1 0 0 4h10" />
+          </svg>
+        </span>
+        <span class="av-label">Vyakhya Vani</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Real-time scriptural interpretation for life problems.</span>
+      </a>
+
+      <a class="av-item" href="https://www.atmavani.life/#vani-adhyayan">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 7h8a4 4 0 0 1 4 4v7H7a4 4 0 0 0-4 4z" transform="translate(0,-4)" />
+            <path d="M21 7h-8a4 4 0 0 0-4 4v7h8a4 4 0 0 1 4 4z" transform="translate(0,-4)" />
+          </svg>
+        </span>
+        <span class="av-label">Vani Adhyayan</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Structured courses for studying sacred Hindu texts.</span>
+      </a>
+    </div>
+
+    <div class="av-subhead">III. The Divine Schedule</div>
+    <div class="av-menu">
+      <a class="av-item" href="https://www.atmavani.life/#panchang-vani">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M7 2v3M17 2v3M3 8h18M5 5h14a2 2 0 0 1 2 2v13H3V7a2 2 0 0 1 2-2z" />
+            <circle cx="8.5" cy="13.5" r="1.2" />
+          </svg>
+        </span>
+        <span class="av-label">Panchang Vani</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Daily auspicious timings and cosmic schedule guidance.</span>
+      </a>
+
+      <a class="av-item" href="https://www.atmavani.life/#astro-vani">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="7" />
+            <path d="M12 5v14M5 12h14M7.5 7.5l9 9M16.5 7.5l-9 9" />
+          </svg>
+        </span>
+        <span class="av-label">Astro Vani</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Personalized astrological chart readings and insights.</span>
+      </a>
+    </div>
+
+    <div class="av-subhead">IV. The Devotional Experience</div>
+    <div class="av-menu">
+      <a class="av-item" href="https://www.atmavani.life/#bhajan-vani">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 3v12a3 3 0 1 1-2-2.8V6l8-3v9" />
+          </svg>
+        </span>
+        <span class="av-label">Bhajan Vani</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">On-demand AI-generated devotional music and hymns.</span>
+      </a>
+
+      <a class="av-item" href="https://www.atmavani.life/#vani-satsang">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="2" />
+            <path d="M4 20a8 8 0 0 1 16 0" />
+            <path d="M12 14c2 0 4 1 5 3-1.5 1-3.2 1.5-5 1.5S8.5 18 7 17c1-2 3-3 5-3z" />
+          </svg>
+        </span>
+        <span class="av-label">Vani Satsang</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Live online spiritual gatherings and collective events.</span>
+      </a>
+    </div>
+
+    <div class="av-spacer"></div>
+
+    <div class="av-section">Account</div>
+    <div class="av-menu">
+      <a class="av-item" href="https://www.atmavani.life/#signup">
+        <span class="av-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="3" />
+            <path d="M5 20a7 7 0 0 1 14 0" />
+          </svg>
+        </span>
+        <span class="av-label">Account &amp; Billing</span>
+        <span class="av-info">i</span>
+        <span class="av-tip">Manage your Atma Vani account and billing.</span>
+      </a>
+
+      <!-- Trial status mirror (filled via JS) -->
+      <div id="avTrialStatus" class="av-trial-note">
+        Sign in to start your 3-day trial.
+      </div>
+    </div>
+  </nav>
+  <!-- Overlay for mobile sidebar -->
+  <div class="av-mobile-overlay" id="avMobileOverlay"></div>
+     <header class="hdr" style="margin-bottom:4px;">
+    <div class="wrap">
+      <h1>Atma Samvad — The Spiritual Ashrams</h1>
+    </div>
+  </header>
+  
+  <!-- Trial banner -->
+  <div id="trialBanner" style="display:none;background:#1b2336;color:#e9eef7;border-bottom:1px solid #23273a">
+    <div class="wrap" style="padding:4px 0;display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <span id="trialText">Full access trial — 3 days left</span>
+      <button id="trialUpgrade"
+        onclick="window.location.href='https://www.atmavani.life/atma-samvad-pricing'">
+  Upgrade
+</button>
+    </div>
+  </div>
+
+  <main class="wrap" id="app">
+<section id="hub">
+  <div class="hub-shell">
+    <!-- Hero -->
+    <header class="hub-hero">
+      <p class="hub-kicker">AI-assisted spiritual companion</p>
+      <h1 class="hub-title">Atma Samvad — Conversations with Great Teachers</h1>
+      <p class="hub-hero-lead">
+        Atma Samvad is a quiet space to sit with the teachings of great Gurus and core scriptures.
+        Explore guided readings, gentle explanations, and a safe place to ask your own questions,
+        so that spiritual wisdom can flow into your everyday life.
+      </p>
+    </header>
+
+    <!-- How it works -->
+    <section class="hub-steps" aria-label="How Atma Samvad works">
+      <h2 class="hub-section-title">How it works</h2>
+      <div class="hub-steps-row">
+        <article class="hub-step">
+          <div class="hub-step-icon" aria-hidden="true">🪔</div>
+          <h3 class="hub-step-title">Step 1: Choose a Guru or scripture</h3>
+          <p class="hub-step-text">
+            Begin with a teacher or text that calls to you — Sri Aurobindo, the Gita, the Upanishads,
+            the Guru Granth Sahib, or others as they open.
+          </p>
+        </article>
+
+        <article class="hub-step">
+          <div class="hub-step-icon" aria-hidden="true">📖</div>
+          <h3 class="hub-step-title">Step 2: Explore guided readings</h3>
+          <p class="hub-step-text">
+            Read short, curated passages with plain-language explanations and context to deepen
+            understanding without overwhelm.
+          </p>
+        </article>
+
+        <article class="hub-step">
+          <div class="hub-step-icon" aria-hidden="true">🕊️</div>
+          <h3 class="hub-step-title">Step 3: Ask your questions</h3>
+          <p class="hub-step-text">
+            Speak to the teachings in simple language. Atma Samvad responds gently, drawing from
+            authentic sources to support your inner journey.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Guru / Scripture grid -->
+    <section class="hub-gurus" aria-label="Gurus and scriptures">
+      <h2 class="hub-section-title">Begin your conversation</h2>
+      <p class="hub-section-subtitle">
+        Start with Sri Aurobindo &amp; The Mother, and soon you’ll be able to enter other ashrams and scriptures as they open.
+      </p>      <!-- Soft gate shown when user is not signed in -->
+      <div id="hubGate" class="hub-gate">
+        <strong>Sign in to enter the ashram.</strong><br />
+        Atma Samvad is a paid section with a 3-day full access trial.
+        Please sign in below to begin your trial with Sri Aurobindo &amp; The Mother.
+        <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <button
+            id="btnAuth"
+            type="button"
+            style="padding:6px 12px;border-radius:999px;border:1px solid #111827;
+                   background:#111827;color:#f9fafb;font-weight:600;cursor:pointer;
+                   font-size:0.88rem;"
+          >
+            Sign in with Google
+          </button>
+          <span id="badge" style="font-size:0.85rem;color:#4b5563;"></span>
+        </div>
+      </div>
+
+
+      <div class="guru-grid">
+        <!-- Live Guru: Sri Aurobindo & The Mother -->
+        <article class="guru-card guru-card-live">
+          <img
+            class="guru-image"
+            src="https://atmavani.life/wp-content/uploads/2025/11/Sri-Aurobindo.png"
+            alt="Sri Aurobindo & The Mother"
+          />
+          <div class="guru-card-body">
+            <h3 class="guru-name">Sri Aurobindo &amp; The Mother</h3>
+            <p class="guru-tagline">
+              Integral Yoga – transformation of life, not escape from life.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-primary"
+              id="btnEnterAurobindo"
+            >
+              Enter Ashram
+            </button>
+          </div>
+        </article>
+
+        <!-- Coming soon: Bhagavad Gita -->
+        <article class="guru-card guru-card-soon">
+          <img
+            class="guru-image"
+            src="https://atmavani.life/wp-content/uploads/2025/11/Gemini_Generated_Image_mxqas2mxqas2mxqa.png"
+            alt="Bhagavad Gita – Song of the Divine Teacher"
+          />
+          <div class="guru-card-body">
+            <h3 class="guru-name">Bhagavad Gita</h3>
+            <p class="guru-tagline">
+              Song of the Divine Teacher.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-muted btn-coming-soon"
+            >
+              Coming soon
+            </button>
+          </div>
+        </article>
+
+        <!-- Coming soon: Upanishads -->
+        <article class="guru-card guru-card-soon">
+          <img
+            class="guru-image"
+            src="https://atmavani.life/wp-content/uploads/2025/11/Upanishads.png"
+            alt="Upanishads – Wisdom of the Rishis"
+          />
+          <div class="guru-card-body">
+            <h3 class="guru-name">Upanishads</h3>
+            <p class="guru-tagline">
+              Wisdom of the Rishis.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-muted btn-coming-soon"
+            >
+              Coming soon
+            </button>
+          </div>
+        </article>
+
+        <!-- Coming soon: Guru Granth Sahib -->
+        <article class="guru-card guru-card-soon">
+          <img
+            class="guru-image"
+            src="https://atmavani.life/wp-content/uploads/2025/11/guru-granth.png"
+            alt="Guru Granth Sahib – Sikh scripture of devotion and equality"
+          />
+          <div class="guru-card-body">
+            <h3 class="guru-name">Guru Granth Sahib</h3>
+            <p class="guru-tagline">
+              Sikh scripture of devotion and equality.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-muted btn-coming-soon"
+            >
+              Coming soon
+            </button>
+          </div>
+        </article>
+
+        <!-- Coming soon: Swami Vivekananda -->
+        <article class="guru-card guru-card-soon">
+          <img
+            class="guru-image"
+            src="https://atmavani.life/wp-content/uploads/2025/11/Swami-Vivekandana.png"
+            alt="Swami Vivekananda – Strength, service and fearless service"
+          />
+          <div class="guru-card-body">
+            <h3 class="guru-name">Swami Vivekananda</h3>
+            <p class="guru-tagline">
+              Strength, service and fearless service.
+            </p>
+            <button
+              type="button"
+              class="guru-btn guru-btn-muted btn-coming-soon"
+            >
+              Coming soon
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</section>
+
+    <!-- CHANGED: Sri Aurobindo route now contains Start Here + Guided Reading teaser + Q&A -->
+       <!-- Sri Aurobindo Home: intro + journeys + Day 1 + Q&A -->
+    <section id="aurobindo" class="card">
+      <h2>Sri Aurobindo &amp; The Mother</h2>
+
+      <p>
+        This space is for those who feel drawn to Sri Aurobindo and The Mother
+        and would like some help bringing Integral Yoga into daily life, work
+        and family.
+      </p>
+
+      <p>
+        You will find simple explanations, short readings from their writings,
+        and gentle prompts that you can walk with at your own pace.
+      </p>
+
+      <div style="margin-top:12px;font-size:0.9rem;">
+        <div style="font-weight:600;margin-bottom:4px;">Why this space exists</div>
+        <ul style="margin:0 0 0 18px;padding:0;line-height:1.5;">
+          <li>To offer clear, trustworthy explanations of Integral Yoga in simple words.</li>
+          <li>To give gentle daily support for sadhana amidst work and family life.</li>
+          <li>To help spouses, children and friends share a common language of the path.</li>
+        </ul>
+      </div>
+
+      <!-- Guided journeys card -->
+      <div class="card" style="margin-top:20px;padding:12px 14px;">
+        <h3 style="margin-top:0;">Guided journeys</h3>
+
+        <div style="font-weight:600;font-size:0.95rem;margin:4px 0 6px;">
+          21 Days with Integral Yoga
+        </div>
+
+        <p style="margin:0 0 6px;font-size:0.9rem;line-height:1.6;">
+          A 21-day journey through selected passages of Sri Aurobindo &amp; The Mother
+          to help you understand Integral Yoga and gently bring it into your daily life
+          and family.
+        </p>
+
+        <p style="margin:0 0 6px;font-size:0.85rem;color:var(--muted);">
+          For individuals, couples and families who are new to Integral Yoga or who
+          want a simple, shared rhythm for the house.
+        </p>
+
+        <ul style="margin:0 0 8px 18px;font-size:0.85rem;line-height:1.5;">
+          <li>Short daily readings from the works.</li>
+          <li>Key idea explained in simple language.</li>
+          <li>One or two gentle practices you can try alone or together.</li>
+        </ul>
+
+        <!-- Single journey button used by app.js -->
+        <button
+          id="btnIy21"
+          type="button"
+          style="margin-top:4px;padding:8px 14px;border-radius:999px;
+                 border:1px solid var(--border);background:var(--accent);
+                 color:#fff;cursor:pointer;"
+        >
+          View journey
+        </button>
+      </div>
+
+      <hr style="margin:24px 0;border:none;border-top:1px solid #ddd;" />
+
+      <!-- Q&A stays exactly on this page, below the last panel -->
+      <h2>Scoped Samvad Q&amp;A</h2>
+      <p style="margin:4px 0 12px;color:var(--muted);font-size:0.9rem;">
+        Ask about Sri Aurobindo, The Mother, and Integral Yoga. Choose
+        <strong>Simple</strong> for a short explanation or
+        <strong>In-depth</strong> for a deeper dive.
+      </p>
+
+      <div class="card" style="margin-top:12px;">
+        <label for="qaInput" style="display:block;margin-bottom:8px;">
+          Ask a question about Sri Aurobindo &amp; The Mother
+        </label>
+
+        <textarea
+          id="qaInput"
+          rows="4"
+          style="width:100%;padding:10px;border-radius:8px;
+                 border:1px solid var(--border);background:var(--card);
+                 color:var(--text);"
+        ></textarea>
+
+        <div style="margin-top:8px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+          <div>
+            <label><input type="radio" name="depth" value="plain" checked /> Simple</label>
+            <label style="margin-left:8px;">
+              <input type="radio" name="depth" value="scholar" /> In-depth
+            </label>
+          </div>
+
+          <button
+            id="btnAsk"
+            style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);
+                   background:var(--card);color:var(--text);cursor:pointer;"
+          >
+            Ask
+          </button>
+
+          <span id="qaStatus" style="color:var(--muted);"></span>
+        </div>
+
+        <div
+          id="qaOutput"
+          style="margin-top:12px;white-space:pre-wrap;line-height:1.55;"
+        ></div>
+
+        <div style="margin-top:8px;display:flex;justify-content:flex-end;">
+          <button
+            id="btnCopyAnswer"
+            style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);
+                   background:var(--card);color:var(--muted);font-size:0.85rem;
+                   cursor:pointer;"
+          >
+            Copy answer
+          </button>
+        </div>
+
+        <div
+          id="qaSources"
+          style="margin-top:8px;color:var(--muted);font-size:0.95em;"
+        ></div>
+
+        <div
+          id="qaHistoryWrap"
+          style="margin-top:16px;padding:12px;border-radius:8px;
+                 border:1px solid var(--border);background:var(--card);"
+        >
+          <div style="font-weight:600;margin-bottom:8px;">
+            Your recent questions
+          </div>
+          <div
+            id="qaHistory"
+            style="font-size:0.9rem;color:var(--muted);"
+          >
+            <!-- Filled by app.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW: 21 Days with Integral Yoga page -->
+    <section id="iy-21" class="card" style="display:none;">
+      <h2>21 Days with Integral Yoga</h2>
+
+      <p>
+        This journey gently introduces Integral Yoga through short daily readings
+        from Sri Aurobindo and The Mother, along with simple reflections you can
+        live with during the day.
+      </p>
+
+      <p style="font-size:0.9rem;color:var(--muted);margin-bottom:10px;">
+        You can walk this alone or together as a family, at your own pace. There
+        is no pressure to “finish” — only to come back sincerely.
+      </p>
+
+      <div style="font-size:0.9rem;margin-bottom:12px;">
+        <strong>Status:</strong> You are viewing <span>Day 1 of 21</span>
+        <span style="color:var(--muted);"> · Phase: Foundations</span>
+      </div>
+
+      <div class="card" id="iyDayPanel" style="margin-top:8px;padding:12px 14px;">
+        <div
+          id="iyDayHeading"
+          style="font-weight:600;font-size:0.95rem;margin-bottom:4px;"
+        >
+          Day 1 · Foundations · [Title]
+        </div>
+
+        <div
+          id="iyDayMeta"
+          style="font-size:0.85rem;color:var(--muted);margin-bottom:8px;"
+        >
+          Work: <span id="iyDayWork">[Work]</span>
+          · Theme: <span id="iyDayTheme">[Theme]</span>
+        </div>
+
+        <div
+          id="iyDayExcerpt"
+          style="font-size:0.9rem;line-height:1.6;border-left:3px solid var(--border);
+                 padding-left:10px;margin-bottom:10px;"
+        >
+          [[Day 1 reading excerpt will appear here from the corpus.]]
+        </div>
+        <div style="margin-top: 8px;">
+  <button id="btnExplainExcerpt" type="button">
+    Ask Samvad to explain this reading
+  </button>
+</div>
+
+        <div style="font-size:0.87rem;">
+          <div style="font-weight:600;margin-bottom:4px;">Gentle reflection</div>
+          <div id="iyDayReflection">
+            [[Reflection hint for the day will appear here.]]
+          </div>
+        </div>
+      </div>
+      <div class="iy-day-nav" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+  <button id="btnIyPrevDay" type="button">← Previous day</button>
+  <button id="btnIyNextDay" type="button">Next day →</button>
+</div>
+
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
+        <button
+          id="btnIyBack"
+          type="button"
+          style="padding:8px 12px;border-radius:999px;border:1px solid var(--border);
+                 background:transparent;color:var(--text);cursor:pointer;"
+        >
+          ← Back to Sri Aurobindo Home
+        </button>
+
+        <button
+          id="btnIyComplete"
+          type="button"
+          style="padding:8px 12px;border-radius:999px;border:1px solid var(--border);
+                 background:var(--accent);color:#fff;cursor:pointer;"
+        >
+          Mark Day 1 complete
+        </button>
+      </div>
+
+      <p style="margin-top:12px;font-size:0.85rem;color:var(--muted);">
+        Have a question while you read? You can always return to the Sri
+        Aurobindo home page and use the Samvad Q&amp;A there.
+      </p>
+    </section>
+
+    <!-- CHANGED: old <section id="qa">…</section> has been removed entirely -->
+   </main>
+
+  <footer class="ftr">
+    <div class="wrap av-footer-wrap">
+      <div class="av-footer-links">
+        <a href="https://www.atmavani.life/terms-of-use/">Terms of Use</a>
+        <span> • </span>
+        <a href="https://www.atmavani.life/refund-cancellation-policy/">
+          Refund &amp; Cancellation
+        </a>
+        <span> • </span>
+        <a href="https://www.atmavani.life/cookies-policy/">Cookies Policy</a>
+        <span> • </span>
+        <a href="https://www.atmavani.life/data-usage-policy/">Data Usage Policy</a>
+        <span> • </span>
+        <a href="https://www.atmavani.life/contact/">Contact</a>
+      </div>
+
+      <div class="av-footer-note">
+        Atma Vani, I provide AI-driven responses which are informational only and
+        not a substitute for a qualified spiritual teacher.
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Paywall Modal -->
+  <div id="paywall" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6);">
+    <div style="background:#1e2233; color:#e9eef7; max-width:520px; margin:10vh auto; padding:20px; border-radius:12px; border:1px solid #23273a">
+      <h3 style="margin-top:0">Trial ended — Upgrade to continue</h3>
+      <p>You’ve enjoyed full access to Atma Samvad during your 3-day trial. To continue your journey with Sri Aurobindo &amp; The Mother, please upgrade.</p>
+      <div style="display:flex; gap:12px; margin-top:12px">
+        <button id="btnUpgrade"
+        onclick="window.location.href='https://www.atmavani.life/atma-samvad-pricing'">
+  Upgrade
+</button>
+        <button id="btnClosePaywall" style="padding:10px 14px; border-radius:10px; border:1px solid #23273a; background:#151824; color:#e9eef7; cursor:pointer">
+          Not now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs + expose -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBG9gtjR53FzUIBG7nk1nZJdHHinDLX2VY",
+      authDomain: "atma-vani-prod.firebaseapp.com",
+      projectId: "atma-vani-prod",
+      appId: "1:1043273819491:web:48ac7fac567392bb2bdf56",
+      storageBucket: "atma-vani-prod.firebasestorage.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    window.__samvad = {
+      auth, db, provider, signInWithPopup, signOut, onAuthStateChanged,
+      doc, setDoc, serverTimestamp
+    };
+  </script>
+
+  <!-- App JS -->
+  <script src="/app.js" defer></script>
+    <!-- Mirror trial banner text into sidebar trial note -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var bannerTextEl = document.getElementById('trialText');
+      var sidebarTrialEl = document.getElementById('avTrialStatus');
+      if (!sidebarTrialEl) return;
+
+      function syncTrialText() {
+        if (bannerTextEl && bannerTextEl.textContent.trim()) {
+          sidebarTrialEl.textContent = bannerTextEl.textContent.trim();
+        } else {
+          sidebarTrialEl.textContent = 'Sign in to start your 3\u2011day trial.';
+        }
+      }
+
+      // Initial sync
+      syncTrialText();
+
+      // If the banner text changes later (e.g. 3d → 2d), keep it in sync
+      if (bannerTextEl) {
+        var obs = new MutationObserver(syncTrialText);
+        obs.observe(bannerTextEl, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        });
+      }
+    });
+  </script>
+
+  <!-- Soft sign-in gate based on Firebase auth (Aurobindo page) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var gate = document.getElementById('aurobindoGate');
+      if (!gate) return;
+
+      function showGate(show) {
+        gate.style.display = show ? 'block' : 'none';
+      }
+
+      // If Firebase wiring isn't available, keep the gate visible
+      var samvad = window.__samvad || null;
+      if (!samvad || !samvad.auth || !samvad.onAuthStateChanged) {
+        showGate(true);
+        return;
+      }
+
+      // Use the existing Firebase auth to toggle gate
+      samvad.onAuthStateChanged(samvad.auth, function (user) {
+        if (user) {
+          // Signed-in user: hide the gentle reminder
+          showGate(false);
+        } else {
+          // Not signed in: show the gentle reminder
+          showGate(true);
+        }
+      });
+    });
+  </script>
+
+  <!-- Hub gate + block Enter Ashram for signed-out users -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var hubGate = document.getElementById('hubGate');
+      var enterBtn = document.getElementById('btnEnterAurobindo');
+      if (!hubGate || !enterBtn) return;
+
+      function applyState(user) {
+        if (user) {
+          // Signed in: hide gate, enable button
+          hubGate.style.display = 'none';
+          enterBtn.disabled = false;
+          enterBtn.style.opacity = '';
+          enterBtn.style.cursor = 'pointer';
+        } else {
+          // Not signed in: show gate, disable button, and bounce from inner routes
+          hubGate.style.display = 'block';
+          enterBtn.disabled = true;
+          enterBtn.style.opacity = '0.6';
+          enterBtn.style.cursor = 'not-allowed';
+
+          if (window.location.hash === '#aurobindo' || window.location.hash === '#iy-21') {
+            window.location.hash = '#hub';
+            setTimeout(function () {
+              hubGate.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 200);
+          }
+        }
+      }
+
+      var samvad = window.__samvad || null;
+      if (!samvad || !samvad.auth || !samvad.onAuthStateChanged) {
+        // If we can't read auth, treat as signed out
+        applyState(null);
+        return;
+      }
+
+      samvad.onAuthStateChanged(samvad.auth, function (user) {
+        applyState(user);
+      });
+    });
+  </script>
+    <!-- Mobile sidebar toggle (hamburger + overlay) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var toggle = document.getElementById('avMobileMenuToggle');
+      var overlay = document.getElementById('avMobileOverlay');
+      var sidebar = document.querySelector('.av-sidebar');
+
+      if (!toggle || !sidebar) return;
+
+      function closeMenu() {
+        document.body.classList.remove('av-sidebar-open');
+      }
+
+      function toggleMenu() {
+        document.body.classList.toggle('av-sidebar-open');
+      }
+
+      // Click on hamburger toggles the menu
+      toggle.addEventListener('click', function () {
+        toggleMenu();
+      });
+
+      // Click on overlay closes the menu
+      if (overlay) {
+        overlay.addEventListener('click', function () {
+          closeMenu();
+        });
+      }
+
+      // Clicking any link inside sidebar also closes the menu (on mobile)
+      sidebar.addEventListener('click', function (e) {
+        var link = e.target.closest('a');
+        if (link) {
+          closeMenu();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+</body>
+</html>
