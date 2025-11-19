@@ -5,9 +5,36 @@
 export default async function handler(req, res) {
   const start = Date.now();
 
-  // Allow only POST
+  // --- Basic CORS setup ---
+  const allowedOrigins = [
+    "https://atma-samvad-gita-ashram-frontend.vercel.app",
+    "https://samvad.atmavani.life"
+  ];
+
+  const origin = req.headers.origin;
+
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    // fallback (you can make this more strict later if you like)
+    res.setHeader(
+      "Access-Control-Allow-Origin",
+      "https://atma-samvad-gita-ashram-frontend.vercel.app"
+    );
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // Handle preflight OPTIONS request
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  // --- Only POST is allowed for actual calls ---
   if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+    res.setHeader("Allow", "POST, OPTIONS");
     return res.status(405).json({
       feature: null,
       success: false,
