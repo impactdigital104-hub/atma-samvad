@@ -400,16 +400,29 @@ function renderIyDayByIndex(index) {
 }
 
 // --- Basic router (hash-based) ---
-(function router(){
-  function route(){
-   const hash = location.hash || '#gita-ashram';
- document.querySelectorAll('main > section').forEach(s=>{
-      s.style.display = ('#'+s.id===hash)?'block':'none';
+(function router() {
+  function route() {
+    let hash = location.hash || '';
+
+    // For the Gita mini-app:
+    // - If there is no hash, go to #gita-ashram
+    // - If someone lands on #hub (old Aurobindo default), also go to #gita-ashram
+    if (!hash || hash === '#hub') {
+      hash = '#gita-ashram';
+      if (location.hash !== '#gita-ashram') {
+        history.replaceState(null, '', '#gita-ashram');
+      }
+    }
+
+    document.querySelectorAll('main > section').forEach((s) => {
+      s.style.display = ('#' + s.id === hash) ? 'block' : 'none';
     });
   }
+
   window.addEventListener('hashchange', route);
   route();
 })();
+
 
 // --- Auth mini-wire (resilient) ---
 (function authMini() {
