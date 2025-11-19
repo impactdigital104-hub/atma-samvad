@@ -424,6 +424,7 @@ function renderIyDayByIndex(index) {
 })();
 
 
+
 // --- Auth mini-wire (resilient) ---
 (function authMini() {
   const btn = document.getElementById('btnAuth');
