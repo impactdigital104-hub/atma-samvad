@@ -402,7 +402,7 @@ function renderIyDayByIndex(index) {
 // --- Basic router (hash-based) ---
 (function router(){
   function route(){
-    const hash = location.hash || '#hub';
+   const hash = location.hash || '#gita-ashram';
  document.querySelectorAll('main > section').forEach(s=>{
       s.style.display = ('#'+s.id===hash)?'block':'none';
     });
