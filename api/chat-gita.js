@@ -388,7 +388,6 @@ async function handleDecisionCompass(payload, { language, depth }) {
       systemPrompt,
       userPrompt
     });
-
     let parsed;
     try {
       parsed = JSON.parse(modelResponseText);
@@ -397,13 +396,15 @@ async function handleDecisionCompass(payload, { language, depth }) {
       parsed = null;
     }
 
-      if (!parsed || typeof parsed !== "object") {
+    if (!parsed || typeof parsed !== "object") {
       // If parsing fails, fall back to local content
       return {
         ...fallbackContent,
-        _debugSource: "parse-failed"
+        _debugSource: "parse-failed",
+        _debugRaw: modelResponseText || ""
       };
     }
+
 
     // 5) Normalise content and ensure inputEcho is correct
       const content = {
