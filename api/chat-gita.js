@@ -450,7 +450,7 @@ async function callDecisionCompassModel({ systemPrompt, userPrompt }) {
       { role: "user", content: userPrompt }
     ],
     temperature: 0.4,
-    max_tokens: 900
+    max_tokens: 2200
   };
 
 
