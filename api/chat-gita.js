@@ -364,7 +364,7 @@ async function handleDecisionCompass(payload, { language, depth }) {
 
   try {
     // 3) Build system and user prompts
-    const systemPrompt = buildDecisionCompassSystemPrompt();
+        const systemPrompt = buildDecisionCompassSystemPrompt();
     const userPrompt = buildDecisionCompassUserPrompt({
       title,
       situation,
@@ -375,8 +375,10 @@ async function handleDecisionCompass(payload, { language, depth }) {
       constraints,
       language,
       depth,
-      versesJson: JSON.stringify(versesRaw, null, 2)
+      versesJson: JSON.stringify(versesRaw, null, 2),
+      commentaryJson: JSON.stringify(commentary || {}, null, 2)
     });
+
 
     // 4) Call OpenAI
     const modelResponseText = await callDecisionCompassModel({
