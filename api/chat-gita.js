@@ -221,13 +221,16 @@ export default async function handler(req, res) {
       content = await handleDecisionCompass(payload, { language, depth });
       break;
 
+    case "qna":
+      content = await handleGitaQnA(payload, { language });
+      break;
+
     case "mind_coach":
     case "shloka_to_life":
-    case "qna":
     default:
       content = {
         message:
-          "This Gita Ashram feature is not implemented yet. Only 'decision_compass' returns full structured content right now."
+          "This Gita Ashram feature is not implemented yet. Only 'decision_compass' and 'qna' are active right now."
       };
       break;
   }
@@ -243,6 +246,93 @@ export default async function handler(req, res) {
       elapsedMs: Date.now() - start
     }
   });
+}
+
+// =======================================================================
+// Simple Gita Q&A handler (feature = "qna")
+// =======================================================================
+
+async function handleGitaQnA(payload, { language }) {
+  const question = (payload.question || "").trim();
+
+  if (!question) {
+    return {
+      answer:
+        "Please enter a question about your life or the Bhagavad Gita so the Gita Ashram can respond."
+    };
+  }
+
+  if (!OPENAI_API_KEY) {
+    console.error("OPENAI_API_KEY is not set for Gita Q&A");
+    return {
+      answer:
+        "The Gita Q&A engine is temporarily unavailable. Please try again later."
+    };
+  }
+
+  try {
+    const systemPrompt = `
+You are Atma Vani – Gita Ashram Q&A guide.
+Your role is to answer questions about life and dilemmas through the lens of the Bhagavad Gita.
+Keep your tone warm, gentle and non-judgmental. YOu will also answer questions about the Bhagavad Gita itself and the characters in it.
+Whenever helpful, you may mention relevant verse references like "BG 2.47" or "BG 12.13-14".
+Do not give medical, legal or financial prescriptions. Encourage professional help when needed.
+Keep answers concise (2–6 short paragraphs), and focus on practical guidance rooted in the Gita.
+If the user language is not English, you may answer in that language when possible.
+`;
+
+    const userPrompt = `
+User question (language: ${language || "en"}):
+
+"${question}"
+`;
+
+    const payloadBody = {
+      model: "gpt-4.1-mini",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.5,
+      max_tokens: 800
+    };
+
+    const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`
+      },
+      body: JSON.stringify(payloadBody)
+    });
+
+    if (!apiRes.ok) {
+      const errorText = await apiRes.text().catch(() => "");
+      console.error("OpenAI API error (Gita Q&A):", apiRes.status, errorText);
+      return {
+        answer:
+          "The Gita Q&A engine encountered an error while generating a response. Please try again in a little while."
+      };
+    }
+
+    const data = await apiRes.json();
+    const text = (data?.choices?.[0]?.message?.content || "").trim();
+
+    if (!text) {
+      return {
+        answer:
+          "The Gita Q&A engine did not return a clear answer this time. Please try asking your question again in slightly different words."
+      };
+    }
+
+    return { answer: text };
+  } catch (err) {
+    console.error("Gita Q&A model error:", err);
+    return {
+      answer:
+        "There was an unexpected error in the Gita Q&A engine. Please try again later."
+    };
+  }
 }
 
 // --- Core logic for Gita Decision Compass ---
