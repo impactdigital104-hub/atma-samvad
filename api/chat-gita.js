@@ -8,6 +8,9 @@
 // - Return a structured JSON reflection
 //
 // If OpenAI fails, we fall back to a local static reflection.
+// === GITA VECTOR STORE (Bhagavad Gita As It Is — 1972 Edition) ===
+const GITA_VECTOR_STORE_ID = "vs_691eed1c955c81919da35fabc5a8b523";
+
 
 import {
   extractThemesFromInput,
@@ -20,6 +23,77 @@ import {
 } from "../lib/gitaDecisionPrompts.js";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+// =======================================================================
+// Fetch short commentary snippets for the selected verses
+// =======================================================================
+
+async function fetchGitaCommentaryForVerses({ verses, situation }) {
+  // If the vector store is not configured, return an empty object safely
+  if (!GITA_VECTOR_STORE_ID) {
+    return { byVerse: {} };
+  }
+
+  try {
+    const verseRefs = verses.map(v => v.ref).join(", ");
+
+    const prompt = `
+You are an assistant that provides short, clear commentary based on the
+Bhagavad-Gita As It Is (1972 edition).
+
+The user is facing this situation:
+"${situation}"
+
+These verses were selected by the Decision Compass:
+${verseRefs}
+
+For each verse, give a short explanation (3–5 sentences) that helps the user
+understand how the verse applies to their situation. Base the explanation ONLY
+on relevant passages in the provided Gita text. Do not invent new Sanskrit or 
+new meanings. Stay concise.
+
+Return your output as a JSON object with this format:
+
+{
+  "byVerse": {
+    "BG 2.47": "short commentary...",
+    "BG 3.19": "short commentary..."
+  }
+}
+`;
+
+    const response = await openai.responses.create({
+      model: "gpt-4.1-mini",
+      input: prompt,
+      tools: [
+        {
+          type: "file_search",
+          vector_store_ids: [GITA_VECTOR_STORE_ID]
+        }
+      ]
+    });
+
+    const outputText = response.output_text || "";
+
+    let parsed = {};
+    try {
+      parsed = JSON.parse(outputText);
+    } catch (parseErr) {
+      console.warn("Could not parse Gita commentary JSON:", parseErr);
+      return { byVerse: {} };
+    }
+
+    if (!parsed.byVerse || typeof parsed.byVerse !== "object") {
+      return { byVerse: {} };
+    }
+
+    return parsed;
+
+  } catch (err) {
+    console.error("Error fetching Gita commentary:", err);
+    return { byVerse: {} }; // safe fallback
+  }
+}
 
 export default async function handler(req, res) {
   const start = Date.now();
