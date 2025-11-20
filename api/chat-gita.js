@@ -198,11 +198,18 @@ async function handleDecisionCompass(payload, { language, depth }) {
 
   const fallbackVerses = versesRaw.map((v) => ({
     ref: v.ref,
-    excerpt: v.summary || v.text,
-    whyRelevant: `This verse speaks about ${v.themes.join(
-      ", "
-    )}. Its teaching can help you respond to this situation with more clarity and steadiness.`
+    // prefer the more human-friendly meaning if available
+    excerpt: v.shortMeaning || v.summary || v.enTranslation || v.text,
+    whyRelevant: `This verse speaks about ${
+      Array.isArray(v.themes) ? v.themes.join(", ") : ""
+    }. Its teaching can help you respond to this situation with more clarity and steadiness.`,
+    // NEW: carry through the scriptural fields so frontend can show them
+    devanagari: v.devanagari || "",
+    transliteration: v.transliteration || "",
+    enTranslation: v.enTranslation || "",
+    hiTranslation: v.hiTranslation || ""
   }));
+
 
   const fallbackContent = {
     summary:
