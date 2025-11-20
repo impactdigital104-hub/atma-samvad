@@ -443,14 +443,15 @@ async function handleDecisionCompass(payload, { language, depth }) {
 async function callDecisionCompassModel({ systemPrompt, userPrompt }) {
   const payload = {
     model: "gpt-4.1-mini",
+    response_format: { type: "json_object" },
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt }
     ],
     temperature: 0.4,
-    max_tokens: 900,
-    response_format: { type: "json_object" }
+    max_tokens: 900
   };
+
 
   const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
