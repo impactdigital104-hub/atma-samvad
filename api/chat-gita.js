@@ -356,10 +356,13 @@ async function handleDecisionCompass(payload, { language, depth }) {
     ]
   };
 
-  // --- If no API key, just return fallback content ---
+   // --- If no API key, just return fallback content ---
   if (!OPENAI_API_KEY) {
     console.error("OPENAI_API_KEY is not set for Gita Decision Compass");
-    return fallbackContent;
+    return {
+      ...fallbackContent,
+      _debugSource: "no-api-key"
+    };
   }
 
   try {
@@ -394,13 +397,16 @@ async function handleDecisionCompass(payload, { language, depth }) {
       parsed = null;
     }
 
-    if (!parsed || typeof parsed !== "object") {
+      if (!parsed || typeof parsed !== "object") {
       // If parsing fails, fall back to local content
-      return fallbackContent;
+      return {
+        ...fallbackContent,
+        _debugSource: "parse-failed"
+      };
     }
 
     // 5) Normalise content and ensure inputEcho is correct
-    const content = {
+      const content = {
       summary: parsed.summary || fallbackContent.summary,
       inputEcho, // always trust our own echo
       gitaLens: Array.isArray(parsed.gitaLens) && parsed.gitaLens.length
@@ -417,13 +423,18 @@ async function handleDecisionCompass(payload, { language, depth }) {
         Array.isArray(parsed.reflectionQuestions) &&
         parsed.reflectionQuestions.length
           ? parsed.reflectionQuestions
-          : fallbackContent.reflectionQuestions
+          : fallbackContent.reflectionQuestions,
+      _debugSource: "model-ok"
     };
 
     return content;
+
   } catch (err) {
     console.error("Decision Compass model error:", err);
-    return fallbackContent;
+    return {
+      ...fallbackContent,
+      _debugSource: "exception"
+    };
   }
 }
 
