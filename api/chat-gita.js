@@ -29,15 +29,15 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 // =======================================================================
 
 async function fetchGitaCommentaryForVerses({ verses, situation }) {
-  // If the vector store is not configured, return an empty object safely
-  if (!GITA_VECTOR_STORE_ID) {
+  // If the vector store or API key is not configured, return an empty object safely
+  if (!GITA_VECTOR_STORE_ID || !OPENAI_API_KEY) {
     return { byVerse: {} };
   }
 
   try {
-    const verseRefs = verses.map(v => v.ref).join(", ");
+    const verseRefs = verses.map((v) => v.ref).join(", ");
 
-    const prompt = `
+    const inputText = `
 You are an assistant that provides short, clear commentary based on the
 Bhagavad-Gita As It Is (1972 edition).
 
@@ -62,18 +62,54 @@ Return your output as a JSON object with this format:
 }
 `;
 
-    const response = await openai.responses.create({
+    const payload = {
       model: "gpt-4.1-mini",
-      input: prompt,
+      input: inputText,
       tools: [
         {
           type: "file_search",
           vector_store_ids: [GITA_VECTOR_STORE_ID]
         }
       ]
+    };
+
+    const apiRes = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`
+      },
+      body: JSON.stringify(payload)
     });
 
-    const outputText = response.output_text || "";
+    if (!apiRes.ok) {
+      const errorText = await apiRes.text().catch(() => "");
+      console.error(
+        "OpenAI Responses API error (Gita commentary):",
+        apiRes.status,
+        errorText
+      );
+      return { byVerse: {} };
+    }
+
+    const data = await apiRes.json();
+
+    // Try to extract plain text from Responses API output structure
+    let outputText = "";
+    try {
+      const firstOutput = data.output && data.output[0];
+      const firstContent =
+        firstOutput && firstOutput.content && firstOutput.content[0];
+      if (firstContent && firstContent.type === "output_text") {
+        outputText = firstContent.text || "";
+      }
+    } catch (extractErr) {
+      console.warn("Could not extract output_text from Gita commentary:", extractErr);
+    }
+
+    if (!outputText) {
+      return { byVerse: {} };
+    }
 
     let parsed = {};
     try {
@@ -88,7 +124,6 @@ Return your output as a JSON object with this format:
     }
 
     return parsed;
-
   } catch (err) {
     console.error("Error fetching Gita commentary:", err);
     return { byVerse: {} }; // safe fallback
@@ -267,6 +302,14 @@ async function handleDecisionCompass(payload, { language, depth }) {
     emotion,
     situation
   });
+
+  // 3) Try to fetch short commentary for these verses (non-blocking if it fails)
+  const commentary = await fetchGitaCommentaryForVerses({
+    verses: versesRaw,
+    situation
+  });
+
+  // --- Build fallback static content (in case OpenAI fails) ---
 
   // --- Build fallback static content (in case OpenAI fails) ---
 
