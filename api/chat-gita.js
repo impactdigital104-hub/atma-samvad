@@ -1,6 +1,8 @@
 // api/chat-gita.js
-// Gita Ashram – dummy backend for /api/chat-gita
-// NOTE: no OpenAI calls yet; just structured sample responses.
+// Gita Ashram – backend for /api/chat-gita
+// Currently: structured reflections using local verse retrieval (no OpenAI yet).
+
+import { extractThemesFromInput, retrieveGitaVerses } from "../lib/gitaDecisionCompass.js";
 
 export default async function handler(req, res) {
   const start = Date.now();
@@ -41,7 +43,7 @@ export default async function handler(req, res) {
       language: "en",
       content: null,
       meta: {
-        model: "dummy-gita-v1",
+        model: "gita-decisions-v1",
         elapsedMs: Date.now() - start,
         error: "Method not allowed"
       }
@@ -60,7 +62,7 @@ export default async function handler(req, res) {
       language: "en",
       content: null,
       meta: {
-        model: "dummy-gita-v1",
+        model: "gita-decisions-v1",
         elapsedMs: Date.now() - start,
         error: "Invalid JSON body"
       }
@@ -79,7 +81,7 @@ export default async function handler(req, res) {
       language,
       content: null,
       meta: {
-        model: "dummy-gita-v1",
+        model: "gita-decisions-v1",
         elapsedMs: Date.now() - start,
         error: "Missing 'feature' or 'payload' in request body"
       }
@@ -90,7 +92,7 @@ export default async function handler(req, res) {
 
   switch (feature) {
     case "decision_compass":
-      content = buildDecisionCompassDummy(payload);
+      content = await handleDecisionCompass(payload, { language, depth });
       break;
 
     case "mind_coach":
@@ -99,7 +101,7 @@ export default async function handler(req, res) {
     default:
       content = {
         message:
-          "This Gita Ashram feature is not implemented yet in the dummy backend. Only 'decision_compass' returns full structured content right now."
+          "This Gita Ashram feature is not implemented yet. Only 'decision_compass' returns full structured content right now."
       };
       break;
   }
@@ -110,17 +112,26 @@ export default async function handler(req, res) {
     language,
     content,
     meta: {
-      model: "dummy-gita-v1",
+      model: "gita-decisions-v1",
       depth,
       elapsedMs: Date.now() - start
     }
   });
 }
 
-// --- Dummy builder for Gita Decision Compass ---
+// --- Core logic for Gita Decision Compass (no OpenAI yet) ---
 
-function buildDecisionCompassDummy(payload) {
-  const {
+async function handleDecisionCompass(payload, { language, depth }) {
+  const title = (payload.title || "").trim();
+  const situation = (payload.situation || "").trim();
+  const lifeArea = ((payload.lifeArea || "general").trim()) || "general";
+  const emotion = ((payload.emotion || "other").trim()) || "other";
+  const timeHorizon =
+    ((payload.timeHorizon || "unspecified").trim()) || "unspecified";
+  const desiredOutcome = (payload.desiredOutcome || "").trim();
+  const constraints = (payload.constraints || "").trim();
+
+  const inputEcho = {
     title,
     situation,
     lifeArea,
@@ -128,55 +139,89 @@ function buildDecisionCompassDummy(payload) {
     timeHorizon,
     desiredOutcome,
     constraints
-  } = payload || {};
+  };
+
+  // If no situation is provided, gently ask for it
+  if (!situation) {
+    return {
+      summary:
+        "Please describe your situation in a few lines so the Gita can reflect with you.",
+      inputEcho,
+      gitaLens: [],
+      verses: [],
+      actionPlan: [],
+      innerPractice: {
+        title: "Short pause",
+        duration: "1–2 minutes",
+        instructions:
+          "Take a few slow breaths and gently gather your thoughts. When you are ready, describe your situation and try again."
+      },
+      reflectionQuestions: []
+    };
+  }
+
+  // 1) Extract themes from the input
+  const themes = extractThemesFromInput({
+    lifeArea,
+    emotion,
+    situation,
+    desiredOutcome,
+    constraints
+  });
+
+  // 2) Retrieve 1–3 relevant verses
+  const versesRaw = retrieveGitaVerses({
+    themes,
+    lifeArea,
+    emotion,
+    situation
+  });
+
+  const verses = versesRaw.map((v) => ({
+    ref: v.ref,
+    excerpt: v.summary || v.text,
+    whyRelevant: `This verse speaks about ${v.themes.join(
+      ", "
+    )}. Its teaching can help you respond to this situation with more clarity and steadiness.`
+  }));
+
+  // 3) Build Gita lens bullets
+  const gitaLens = [
+    "See this situation as a field (kṣetra) for sincere effort rather than a battlefield of ego and fear.",
+    "Focus on the dharmic step in front of you instead of getting lost in imagined future results.",
+    "Try to act from steadiness and goodwill, not from panic, guilt, or harsh self-judgment."
+  ];
+
+  // 4) Simple, practical action plan
+  const actionPlan = [
+    "Clarify in one or two sentences what truly matters to you here beyond short-term gain or loss.",
+    "List your concrete responsibilities in this situation (to yourself, family, work, or others) and see which actions honour them.",
+    "Choose one small, dharmic step you can take in the next 24–48 hours and commit to it, offering the result to the Divine."
+  ];
+
+  // 5) Short inner practice
+  const innerPractice = {
+    title: "2-minute Gita pause",
+    duration: "2–3 minutes",
+    instructions:
+      "Sit comfortably and notice your breath. With each exhale, gently release a little of the tightness around this issue. Mentally repeat a simple line like 'I will do my duty and offer the fruits.' Then, for a few moments, imagine placing this situation at the feet of the Divine and asking for clarity to act rightly."
+  };
+
+  // 6) Reflection questions
+  const reflectionQuestions = [
+    "If I set aside fear and people’s opinions for a moment, what feels truest and most self-respecting here?",
+    "Which option best honours my deeper responsibilities and values over the next few years, not just the next few days?",
+    "What would it look like to act wholeheartedly and then let go of the result, as the Gita teaches?"
+  ];
 
   return {
     summary:
       "The Gita invites you to act from dharma and clarity rather than fear or short-term gain. Choose the option that honours your responsibilities and inner peace.",
-    inputEcho: {
-      title: title || "",
-      situation: situation || "",
-      lifeArea: lifeArea || "",
-      emotion: emotion || "",
-      timeHorizon: timeHorizon || "",
-      desiredOutcome: desiredOutcome || "",
-      constraints: constraints || ""
-    },
-    gitaLens: [
-      "See your situation as a field (kṣetra) for sincere effort, not as a battlefield of ego and anxiety.",
-      "Act in a way that serves your deeper responsibilities (svadharma) rather than only short-term comfort or fear.",
-      "Offer the fruits of your decision to the Divine, and stay focused on right action rather than imagined outcomes."
-    ],
-    verses: [
-      {
-        ref: "BG 2.47",
-        excerpt:
-          "You have a right to perform your prescribed duty, but you are not entitled to the fruits of action...",
-        whyRelevant:
-          "This verse helps you focus on choosing and acting wisely, without becoming paralysed by anxiety about results."
-      },
-      {
-        ref: "BG 18.66",
-        excerpt:
-          "Abandon all varieties of dharmas and simply surrender unto Me...",
-        whyRelevant:
-          "When the mind feels torn between options, this verse reminds you to trust a higher wisdom and choose what feels most aligned with truth and responsibility."
-      }
-    ],
-    actionPlan: [
-      "Step 1 — Clarify: In one or two sentences, write what you are truly seeking here (e.g., integrity, stability, service, growth).",
-      "Step 2 — Compare: For each option, note how well it supports that deeper aim and your key responsibilities (family, health, finances, inner growth).",
-      "Step 3 — Commit: Choose the option that feels more dharmic and self-respecting, then act wholeheartedly without constant back-and-forth in the mind."
-    ],
-    innerPractice: {
-      title: "2-minute Gita pause",
-      duration: "2–3 minutes",
-      instructions:
-        "Sit quietly, slow down your breath, and mentally repeat a simple verse or mantra (for example, 'Karmanye vadhikaraste'). Offer your confusion to the Divine and ask for clarity to choose what is right, not merely what is comfortable."
-    },
-    reflectionQuestions: [
-      "If fear of loss or judgement was softer for a moment, which option would I feel more at peace with in my heart?",
-      "How will this decision help me grow in steadiness, sincerity, and service over the next few years, not just the next few weeks?"
-    ]
+    inputEcho,
+    gitaLens,
+    verses,
+    actionPlan,
+    innerPractice,
+    reflectionQuestions
   };
 }
