@@ -134,9 +134,10 @@ export default async function handler(req, res) {
   const start = Date.now();
 
   // --- Basic CORS setup ---
-  const allowedOrigins = [
+   const allowedOrigins = [
     "https://atma-samvad-gita-ashram-frontend.vercel.app",
-    "https://samvad.atmavani.life"
+    "https://samvad.atmavani.life",
+    "https://www.atmavani.life"
   ];
 
   const origin = req.headers.origin;
