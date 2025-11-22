@@ -75,10 +75,20 @@ function clampWords(text, minWords, maxWords) {
 // ---------- Main handler ----------
 
 module.exports = async (req, res) => {
+  // --- CORS headers so frontend on atmavani.life can call this API ---
+  res.setHeader("Access-Control-Allow-Origin", "https://www.atmavani.life");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle CORS preflight (browser sends OPTIONS before POST)
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   try {
-    // Only allow POST
+    // Only allow POST for actual work
     if (req.method !== "POST") {
-      res.setHeader("Allow", "POST");
+      res.setHeader("Allow", "POST, OPTIONS");
       return res.status(405).json({ error: "Method Not Allowed" });
     }
 
@@ -90,6 +100,7 @@ module.exports = async (req, res) => {
       guru,
       action,
     } = body;
+
 
     // Basic envelope check: must be Samvad + Aurobindo, but allow two actions.
     const isSamvadEnvelope = mode === "samvad" && guru === "aurobindo";
