@@ -1,59 +1,75 @@
 // api/chat-pranami.js
 // Pranami Tartam Ashram – backend for /api/chat-pranami
 //
-// Tartam Vidya Compass:
-// - User sends a single "question" (their worry / situation)
-// - We call OpenAI Responses API with file_search over Tartam vector store
-// - We expect a JSON reply with { verse_snippet, explanation, directive }
+// Takes a real-life question/situation from the user,
+// calls OpenAI Responses API with File Search over the
+// Pranami Tartam vector store, and returns:
+//
+// {
+//   success: true,
+//   verse_snippet: "...",
+//   explanation: "...",
+//   directive: "...",
+//   meta: { ... }
+// }
 
-const PRANAMI_TARTAM_STORE_ID = "vs_6932802f55848191b75d5e57cbebda8d";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-// ------------------------------------------------------------
-// Helper: call OpenAI Responses API for Tartam Compass
-// ------------------------------------------------------------
+// === PRANAMI TARTAM VECTOR STORE ID ===
+const PRANAMI_TARTAM_STORE_ID = "vs_6932802f55848191b75d5e57cbebda8d";
 
-async function callTartamCompassModel(question) {
-  if (!OPENAI_API_KEY || !PRANAMI_TARTAM_STORE_ID) {
-    console.error(
-      "Missing OPENAI_API_KEY or PRANAMI_TARTAM_STORE_ID for Tartam Compass"
-    );
-    return {
-      verse_snippet: "",
-      explanation:
-        "Tartam Vidya Compass is temporarily unavailable because the server is not fully configured.",
-      directive: ""
-    };
+// Small helper: safely parse JSON (for Responses output)
+function safeJsonParse(str, fallback) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return fallback;
   }
-
-  const inputText = `
-You are "Tartam Vidya Compass", a gentle spiritual guide of the Pranami (Nijananda) sampradaya.
-
-The user will share a worry, confusion, or life situation.
-
-You MUST:
-- Use the Tartam / Beetak texts available via file_search as your main source.
-- Never invent or fabricate Sanskrit verses. Only quote or paraphrase what is actually present in the retrieved context.
-- Speak in a calm, kind, non-judgmental tone.
-
-Return your answer ONLY as a JSON object with EXACTLY these three keys:
-
-{
-  "verse_snippet": "A short excerpt or summary line from the retrieved Tartam / Beetak context that is most relevant to the user's worry.",
-  "explanation": "3–6 sentences in simple, warm language, explaining how this verse relates to the user's worry. You may gently mention concepts like mohajal, surat, prema, etc. only if they arise naturally from the retrieved text.",
-  "directive": "1–2 gentle, practical lines suggesting how the user can hold this teaching in their heart or daily life. Keep it simple and non-dogmatic."
 }
 
-Do NOT add any extra text outside this JSON. No markdown, no commentary.
+// Call OpenAI Responses API with File Search over Tartam store
+async function callTartamCompassModel(question) {
+  if (!OPENAI_API_KEY || !PRANAMI_TARTAM_STORE_ID) {
+    throw new Error("Server is not configured with OPENAI_API_KEY or vector store id.");
+  }
 
-User's worry:
+  const systemPrompt = `
+You are the Tartam Vidya Compass inside the Pranami Tartam Ashram of Atma Samvad.
+
+Your role:
+- Listen very gently to the user's real-life situation.
+- Draw on Pranami Tartam / Beetak teachings using File Search.
+- Offer a short, compassionate reflection in simple, human language.
+- Stay humble: you are a digital aid, not a living Guru.
+
+Output format:
+You MUST reply as a strict JSON object with exactly these keys:
+
+{
+  "verse_snippet": "short quote or summary of the core Tartam insight (2–4 lines, plain text, no markdown)",
+  "explanation": "gentle explanation connecting the Tartam insight to the user's situation (3–7 short paragraphs, plain text)",
+  "directive": "1–5 simple, concrete micro-practices or shifts they can try over the next 7 days (plain text, you may use 1. 2. 3. style)"
+}
+
+Do NOT wrap the JSON in backticks. Do NOT add any extra keys.
+If Tartam sources are unclear, still answer gently based on general Pranami spirit,
+but keep the same JSON structure.
+`.trim();
+
+  const userPrompt = `
+User's real-life situation:
 
 "${question}"
+
+Remember:
+- Be kind, non-judgmental.
+- No medical, legal, or financial prescriptions.
+- Encourage seeking appropriate professional help when needed.
 `.trim();
 
   const payload = {
     model: "gpt-4.1-mini",
-    input: inputText,
+    input: `${systemPrompt}\n\n---\n\n${userPrompt}`,
     tools: [
       {
         type: "file_search",
@@ -72,23 +88,18 @@ User's worry:
   });
 
   if (!apiRes.ok) {
-    const errText = await apiRes.text().catch(() => "");
+    const errorText = await apiRes.text().catch(() => "");
     console.error(
       "OpenAI Responses API error (Tartam Compass):",
       apiRes.status,
-      errText
+      errorText
     );
-    return {
-      verse_snippet: "",
-      explanation:
-        "Tartam Vidya Compass could not reach the wisdom engine just now. Please try again in a little while.",
-      directive: ""
-    };
+    throw new Error(`OpenAI API error: ${apiRes.status}`);
   }
 
   const data = await apiRes.json();
 
-  // Extract plain text from Responses API structure, same pattern as chat-gita.js
+  // Responses API: try to pull the first output_text block
   let outputText = "";
   try {
     const firstOutput = data.output && data.output[0];
@@ -97,51 +108,34 @@ User's worry:
     if (firstContent && firstContent.type === "output_text") {
       outputText = firstContent.text || "";
     }
-  } catch (extractErr) {
-    console.warn(
-      "Could not extract output_text from Tartam Compass response:",
-      extractErr
-    );
+  } catch (err) {
+    console.warn("Could not extract output_text from Tartam Compass response:", err);
   }
 
-  if (!outputText) {
-    return {
-      verse_snippet: "",
-      explanation:
-        "Tartam Vidya Compass did not return a clear answer this time. Please try asking again in slightly different words.",
-      directive: ""
-    };
+  if (!outputText || typeof outputText !== "string") {
+    throw new Error("Empty model output from Tartam Compass.");
   }
 
-  let parsed;
-  try {
-    parsed = JSON.parse(outputText);
-  } catch (parseErr) {
-    console.warn("Could not parse Tartam Compass JSON:", parseErr);
-    // Fallback: wrap entire text as explanation so user at least sees something
-    return {
-      verse_snippet: "",
-      explanation: outputText,
-      directive: ""
-    };
+  const parsed = safeJsonParse(outputText, null);
+  if (!parsed) {
+    throw new Error("Could not parse Tartam Compass JSON output.");
   }
 
   return {
-    verse_snippet:
-      parsed.verse_snippet || parsed.verseSnippet || parsed.verse || "",
+    verse_snippet: parsed.verse_snippet || "",
     explanation: parsed.explanation || "",
     directive: parsed.directive || ""
   };
 }
 
-// ------------------------------------------------------------
-// HTTP handler
-// ------------------------------------------------------------
+// ======================================================================
+// HTTP handler – /api/chat-pranami
+// ======================================================================
 
 export default async function handler(req, res) {
   const start = Date.now();
 
-  // --- Basic CORS setup (same pattern as chat-gita.js) ---
+  // --- Basic CORS (same as other Atma Samvad APIs) ---
   const allowedOrigins = [
     "https://atma-samvad-gita-ashram-frontend.vercel.app",
     "https://samvad.atmavani.life",
@@ -149,35 +143,31 @@ export default async function handler(req, res) {
   ];
 
   const origin = req.headers.origin;
-
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
-  } else {
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      "https://atma-samvad-gita-ashram-frontend.vercel.app"
-    );
   }
 
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Handle preflight OPTIONS
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  // Only POST allowed
   if (req.method !== "POST") {
-    res.setHeader("Allow", "POST, OPTIONS");
     return res.status(405).json({
       success: false,
-      error: "Method not allowed"
+      verse_snippet: "",
+      explanation: "",
+      directive: "",
+      meta: {
+        error: "Method not allowed",
+        elapsedMs: Date.now() - start
+      }
     });
   }
 
-  // Parse JSON body safely (same pattern as chat-gita.js)
+  // --- Parse body safely ---
   let body;
   try {
     body =
@@ -185,7 +175,13 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(400).json({
       success: false,
-      error: "Invalid JSON body"
+      verse_snippet: "",
+      explanation: "",
+      directive: "",
+      meta: {
+        error: "Invalid JSON body",
+        elapsedMs: Date.now() - start
+      }
     });
   }
 
@@ -194,8 +190,13 @@ export default async function handler(req, res) {
   if (!question) {
     return res.status(400).json({
       success: false,
-      error:
-        "Please share your worry or situation in the 'question' field so the Tartam Vidya Compass can respond."
+      verse_snippet: "",
+      explanation: "",
+      directive: "",
+      meta: {
+        error: "Question is required",
+        elapsedMs: Date.now() - start
+      }
     });
   }
 
@@ -204,9 +205,9 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      verse_snippet: result.verse_snippet || "",
-      explanation: result.explanation || "",
-      directive: result.directive || "",
+      verse_snippet: result.verse_snippet,
+      explanation: result.explanation,
+      directive: result.directive,
       meta: {
         elapsedMs: Date.now() - start
       }
@@ -215,8 +216,13 @@ export default async function handler(req, res) {
     console.error("Tartam Compass handler error:", err);
     return res.status(500).json({
       success: false,
-      error:
-        "Tartam Vidya Compass encountered an unexpected error. Please try again later."
+      verse_snippet: "",
+      explanation: "",
+      directive: "",
+      meta: {
+        error: err.message || "Internal server error",
+        elapsedMs: Date.now() - start
+      }
     });
   }
 }
