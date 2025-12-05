@@ -1,5 +1,5 @@
 // api/chat-pranami.js
-// STRICT Tartam Vidya Compass backend using Responses API + text.format
+// STRICT Tartam Vidya Compass backend using Responses API + file_search
 //
 // - Uses ONLY the Pranami Tartam vector store via file_search
 // - NO generic fallback
@@ -44,20 +44,22 @@ User's situation:
 
   const payload = {
     model: "gpt-4.1-mini",
-    // We send one combined text input (system + user)
-    input: `${systemPrompt}\n\n---\n\n${userPrompt}`,
 
-    // Attach Tartam vector store as a file_search tool
+    // Put user's text here
+    input: userPrompt,
+
+    // Put our instructions here
+    instructions: systemPrompt,
+
+    // Attach Tartam vector store directly on the file_search tool
     tools: [
       {
-        type: "file_search"
+        type: "file_search",
+        vector_store_ids: [PRANAMI_VECTOR_STORE_ID],
+        // optional, but we can tune later
+        max_num_results: 10
       }
     ],
-    tool_resources: {
-      file_search: {
-        vector_store_ids: [PRANAMI_VECTOR_STORE_ID]
-      }
-    },
 
     // NEW Responses API style: use text.format instead of response_format
     text: {
@@ -101,15 +103,17 @@ User's situation:
   // Preferred shortcut: body.output_text (string)
   let raw = body.output_text || "";
 
-  // If output_text is missing, fall back to output[0].content[0].text
+  // If output_text is missing, fall back to output[ ] structure
   if (!raw && Array.isArray(body.output) && body.output.length > 0) {
-    const first = body.output[0];
+    const msgItem = body.output.find((item) => item.type === "message");
     if (
-      first.content &&
-      Array.isArray(first.content) &&
-      first.content.length > 0
+      msgItem &&
+      msgItem.content &&
+      Array.isArray(msgItem.content) &&
+      msgItem.content.length > 0 &&
+      msgItem.content[0].type === "output_text"
     ) {
-      raw = first.content[0].text || "";
+      raw = msgItem.content[0].text || "";
     }
   }
 
