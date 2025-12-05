@@ -1,314 +1,188 @@
 // api/chat-pranami.js
-// Pranami Tartam Ashram – backend for /api/chat-pranami
+// Pranami Tartam Ashram – Tartam Vidya Compass backend
 //
-// Takes a real-life question from the user and returns:
-//
-// {
-//   success: true,
-//   verse_snippet: "...",
-//   explanation: "...",
-//   directive: "...",
-//   meta: {...}
-// }
-//
-// It first tries File Search over the Pranami Tartam vector store.
-// If that fails for ANY reason, it falls back to a plain LLM call
-// (no vector store) so the user still gets guidance.
+// STRICT MODE VERSION
+// - Uses ONLY the Pranami Tartam vector store via file_search
+// - If file_search / Responses API fails, we DO NOT fall back to generic AI
+// - Returns meta.usedVectorStore + meta.error so frontend can debug
 
+const PRANAMI_VECTOR_STORE_ID = "vs_6932802f55848191b75d5e57cbebda8d";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const PRANAMI_TARTAM_STORE_ID = "vs_6932802f55848191b75d5e57cbebda8d";
 
-// --------- small helper ----------
-function safeJsonParse(str, fallback) {
-  try {
-    return JSON.parse(str);
-  } catch {
-    return fallback;
+// Small helper to parse the Responses API output into our JSON object
+function extractJsonFromResponseBody(body) {
+  // body.output[0].content[0].text should contain our JSON (because we use json_schema)
+  if (!body || !Array.isArray(body.output) || body.output.length === 0) {
+    throw new Error("No output array in Responses API result");
   }
+
+  const firstOutput = body.output[0];
+  if (
+    !firstOutput.content ||
+    !Array.isArray(firstOutput.content) ||
+    firstOutput.content.length === 0
+  ) {
+    throw new Error("No content array in first output item");
+  }
+
+  const firstContent = firstOutput.content[0];
+
+  // In newer SDKs this might be called output_text, but via raw REST we get text
+  const text = firstContent.text || firstContent.output_text || "";
+  if (!text) {
+    throw new Error("No text field in first content item");
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (err) {
+    console.error("Failed to parse JSON from model:", text);
+    throw new Error("Model did not return valid JSON");
+  }
+
+  return parsed;
 }
 
-// --------- core model call with optional file_search ----------
-async function callTartamCompassModel(question) {
-  if (!OPENAI_API_KEY) {
-    // If key is somehow missing on this project, fail clearly but safely
-    return {
-      verse_snippet: "",
-      explanation:
-        "The Tartam Vidya Compass is temporarily unavailable due to a configuration issue. Please try again a little later.",
-      directive: "",
-      meta: {
-        usedVectorStore: false,
-        error: "OPENAI_API_KEY missing on server."
-      }
-    };
-  }
-
+async function callTartamWithVectorStore(question) {
   const systemPrompt = `
-You are the Tartam Vidya Compass inside the Pranami Tartam Ashram of Atma Samvad.
+You are "Tartam Vidya Compass" – a spiritual reflection assistant rooted ONLY in
+the Pranami Tartam / Beetak teachings.
 
-Your role:
-- Listen very gently to the user's real-life situation.
-- Draw on Pranami Tartam / Beetak teachings where available.
-- Offer a short, compassionate reflection in simple, human language.
-- Stay humble: you are a digital aid, not a living Guru.
+Your job:
+- Listen to a real-life situation from the user.
+- Search the Pranami Tartam vector store for relevant passages/themes.
+- Offer a short, kind reflection that feels like it flows from Tartam teachings,
+  not generic self-help.
 
-Output format:
-You MUST reply as a strict JSON object with exactly these keys:
+You MUST base your guidance on the uploaded Tartam materials.
+If they are not relevant or not sufficient, say clearly:
+"I’m not able to find a clear Tartam teaching for this question."
+
+Return your answer as STRICT JSON (no extra text around it) in this format:
 
 {
-  "verse_snippet": "short quote or summary of the core Tartam insight (2–4 lines, plain text, no markdown)",
-  "explanation": "gentle explanation connecting the Tartam insight to the user's situation (3–7 short paragraphs, plain text)",
-  "directive": "1–5 simple, concrete micro-practices or shifts they can try over the next 7 days (plain text, you may use 1. 2. 3. style)"
+  "verse_snippet": "one or two lines capturing the essence",
+  "explanation": "3–6 short paragraphs explaining the guidance in simple language",
+  "directive": "A numbered or bulleted list with 3–6 simple, practical steps for daily life"
 }
-
-Do NOT wrap the JSON in backticks. Do NOT add any extra keys.
-If Tartam sources are unclear, still answer gently in the Pranami spirit,
-but keep the same JSON structure.
-`.trim();
+`;
 
   const userPrompt = `
-User's real-life situation:
+User situation (plain language):
 
 "${question}"
+`;
 
-Remember:
-- Be kind, non-judgmental.
-- No medical, legal, or financial prescriptions.
-- Encourage seeking appropriate professional help when needed.
-`.trim();
-
-  // ---------- 1st attempt: WITH Tartam vector store ----------
-  let usedVectorStore = false;
-  let outputText = "";
-  let lastError = null;
-
-  if (PRANAMI_TARTAM_STORE_ID) {
-    try {
-      const payloadWithStore = {
-        model: "gpt-4.1-mini",
-        input: `${systemPrompt}\n\n---\n\n${userPrompt}`,
-        tools: [
-          {
-            type: "file_search",
-            vector_store_ids: [PRANAMI_TARTAM_STORE_ID],
-            // you can tweak these later if needed
-            max_num_results: 8
-          }
-        ]
-      };
-
-      const apiRes = await fetch("https://api.openai.com/v1/responses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`
-        },
-        body: JSON.stringify(payloadWithStore)
-      });
-
-      if (!apiRes.ok) {
-        const errorText = await apiRes.text().catch(() => "");
-        console.error(
-          "OpenAI Responses API error (Tartam Compass WITH vector store):",
-          apiRes.status,
-          errorText
-        );
-        lastError = `OpenAI error (with store): ${apiRes.status} ${errorText}`;
-      } else {
-        const data = await apiRes.json();
-
-        try {
-          const firstOutput = data.output && data.output[0];
-          const firstContent =
-            firstOutput && firstOutput.content && firstOutput.content[0];
-          if (firstContent && firstContent.type === "output_text") {
-            outputText = firstContent.text || "";
-          }
-        } catch (extractErr) {
-          console.warn(
-            "Could not extract output_text from Tartam Compass (with store):",
-            extractErr
-          );
-          lastError = `extract_output_error: ${extractErr.message || String(
-            extractErr
-          )}`;
-        }
-
-        usedVectorStore = !!outputText;
+  const payload = {
+    model: "gpt-4.1-mini",
+    input: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ],
+    tools: [
+      {
+        type: "file_search"
       }
-    } catch (err) {
-      console.error("Exception calling Tartam Compass WITH vector store:", err);
-      lastError = `exception_with_store: ${err.message || String(err)}`;
-    }
-  }
-
-  // ---------- 2nd attempt: fallback WITHOUT vector store ----------
-  if (!outputText) {
-    try {
-      const payloadFallback = {
-        model: "gpt-4.1-mini",
-        input: `${systemPrompt}\n\n---\n\n${userPrompt}`
-      };
-
-      const apiRes2 = await fetch("https://api.openai.com/v1/responses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`
-        },
-        body: JSON.stringify(payloadFallback)
-      });
-
-      if (!apiRes2.ok) {
-        const errorText2 = await apiRes2.text().catch(() => "");
-        console.error(
-          "OpenAI Responses API error (Tartam Compass FALLBACK no store):",
-          apiRes2.status,
-          errorText2
-        );
-        lastError = `OpenAI error (no store): ${apiRes2.status} ${errorText2}`;
-      } else {
-        const data2 = await apiRes2.json();
-
-        try {
-          const firstOutput = data2.output && data2.output[0];
-          const firstContent =
-            firstOutput && firstOutput.content && firstOutput.content[0];
-          if (firstContent && firstContent.type === "output_text") {
-            outputText = firstContent.text || "";
-          }
-        } catch (extractErr2) {
-          console.warn(
-            "Could not extract output_text from Tartam Compass fallback:",
-            extractErr2
-          );
-          lastError = `extract_output_error_fallback: ${
-            extractErr2.message || String(extractErr2)
-          }`;
+    ],
+    // IMPORTANT: correctly attach the vector store here
+    tool_resources: {
+      file_search: {
+        vector_store_ids: [PRANAMI_VECTOR_STORE_ID]
+      }
+    },
+    // Ask the model to output STRICT JSON in the shape we want
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "tartam_guidance",
+        schema: {
+          type: "object",
+          properties: {
+            verse_snippet: { type: "string" },
+            explanation: { type: "string" },
+            directive: { type: "string" }
+          },
+          required: ["verse_snippet", "explanation", "directive"],
+          additionalProperties: false
         }
       }
-    } catch (err2) {
-      console.error("Exception in Tartam Compass FALLBACK call:", err2);
-      lastError = `exception_no_store: ${err2.message || String(err2)}`;
-    }
-  }
-
-  // ---------- final parsing ----------
-  if (!outputText) {
-    // Absolute fallback: return a safe generic reflection
-    return {
-      verse_snippet: "",
-      explanation:
-        "I was not able to reach the Tartam Vidya guidance system just now. Please sit quietly with your question for a few breaths, and try again after some time.",
-      directive:
-        "You might write your situation in a journal and offer it inwardly to the Supreme. When the Compass is available again, you can return and ask once more.",
-      meta: {
-        usedVectorStore,
-        error: lastError || "no_output_text"
-      }
-    };
-  }
-
-  const parsed = safeJsonParse(outputText, null);
-  if (!parsed) {
-    return {
-      verse_snippet: "",
-      explanation:
-        "I could not clearly structure the guidance just now. Please try once more in a little while.",
-      directive: "",
-      meta: {
-        usedVectorStore,
-        error: "json_parse_failed",
-        raw: outputText.slice(0, 4000)
-      }
-    };
-  }
-
-  return {
-    verse_snippet: parsed.verse_snippet || "",
-    explanation: parsed.explanation || "",
-    directive: parsed.directive || "",
-    meta: {
-      usedVectorStore,
-      error: lastError || null
     }
   };
-}
 
-// ======================================================================
-// HTTP handler – /api/chat-pranami
-// ======================================================================
+  const apiRes = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${OPENAI_API_KEY}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const body = await apiRes.json();
+
+  if (!apiRes.ok) {
+    console.error("OpenAI Responses API error:", apiRes.status, body);
+    // surface the error message so we can see it on the frontend
+    throw new Error(
+      body.error?.message ||
+        `OpenAI Responses API failed with status ${apiRes.status}`
+    );
+  }
+
+  // If output_text exists (SDK-style), we can try to parse that first
+  if (body.output_text) {
+    try {
+      return JSON.parse(body.output_text);
+    } catch {
+      // fall through to manual extraction
+    }
+  }
+
+  // Manual extraction from output[0].content[0].text
+  return extractJsonFromResponseBody(body);
+}
 
 export default async function handler(req, res) {
   const start = Date.now();
 
-  // --- Basic CORS (aligned with other Atma Samvad APIs) ---
+  // --- CORS (same pattern as Gita APIs) ---
   const allowedOrigins = [
-    "https://atma-samvad-gita-ashram-frontend.vercel.app",
     "https://samvad.atmavani.life",
-    "https://www.atmavani.life"
+    "https://www.atmavani.life",
+    "https://atma-samvad-gita-ashram-frontend.vercel.app"
   ];
 
   const origin = req.headers.origin;
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "https://www.atmavani.life");
   }
 
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({
-      success: false,
-      verse_snippet: "",
-      explanation: "",
-      directive: "",
-      meta: {
-        error: "Method not allowed",
-        elapsedMs: Date.now() - start
-      }
-    });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // --- Parse JSON body safely ---
-  let body;
-  try {
-    body =
-      typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
-  } catch (err) {
+  const { question } = req.body || {};
+  if (!question || typeof question !== "string") {
     return res.status(400).json({
       success: false,
-      verse_snippet: "",
-      explanation: "",
-      directive: "",
-      meta: {
-        error: "Invalid JSON body",
-        elapsedMs: Date.now() - start
-      }
-    });
-  }
-
-  const question = (body.question || "").trim();
-
-  if (!question) {
-    return res.status(400).json({
-      success: false,
-      verse_snippet: "",
-      explanation: "",
-      directive: "",
-      meta: {
-        error: "Question is required",
-        elapsedMs: Date.now() - start
-      }
+      error: "Missing 'question' in request body",
+      meta: { usedVectorStore: false, elapsedMs: Date.now() - start }
     });
   }
 
   try {
-    const result = await callTartamCompassModel(question);
+    const result = await callTartamWithVectorStore(question);
 
     return res.status(200).json({
       success: true,
@@ -316,20 +190,23 @@ export default async function handler(req, res) {
       explanation: result.explanation,
       directive: result.directive,
       meta: {
-        ...(result.meta || {}),
+        usedVectorStore: true,
+        error: null,
         elapsedMs: Date.now() - start
       }
     });
   } catch (err) {
-    console.error("Tartam Compass handler unexpected error:", err);
+    console.error("Tartam backend error:", err);
+
     return res.status(200).json({
-      success: true,
+      success: false,
       verse_snippet: "",
-      explanation:
-        "The Tartam Vidya Compass ran into an unexpected problem while responding. Please try again in a little while.",
+      explanation: "",
       directive: "",
+      error: err.message || "Unexpected error in Tartam backend",
       meta: {
-        error: err.message || "handler_exception",
+        usedVectorStore: false,
+        error: err.message || "Unexpected error in Tartam backend",
         elapsedMs: Date.now() - start
       }
     });
